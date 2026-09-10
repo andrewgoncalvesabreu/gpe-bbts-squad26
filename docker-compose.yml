@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  postgres-gpe:
+    image: postgres:16-alpine
+    container_name: postgres-gpe
+    restart: always
+    environment:
+      POSTGRES_DB: gpe_db
+      POSTGRES_USER: gpe_user
+      POSTGRES_PASSWORD: gpe_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Servidor de Autenticação / SSO (Keycloak)
+  keycloak-gpe:
+    image: quay.io/keycloak/keycloak:24.0.0
+    container_name: keycloak-gpe
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-gpe
+
+volumes:
+  pgdata:
