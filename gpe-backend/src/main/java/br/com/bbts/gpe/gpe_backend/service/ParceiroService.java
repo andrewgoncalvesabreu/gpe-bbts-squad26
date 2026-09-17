@@ -20,6 +20,9 @@ public class ParceiroService {
     }
 
     public Parceiro salvar(Parceiro parceiro) {
+        if (parceiro.getStatus() == null || parceiro.getStatus().isBlank()) {
+            parceiro.setStatus("EM_ANALISE");
+        }
         return parceiroRepository.save(parceiro);
     }
 }

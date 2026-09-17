@@ -1,20 +1,31 @@
 package br.com.bbts.gpe.gpe_backend.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import br.com.bbts.gpe.gpe_backend.domain.model.Parceiro;
+import br.com.bbts.gpe.gpe_backend.service.ParceiroService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/parceiros")
 public class ParceiroController {
 
+    private final ParceiroService parceiroService;
+
+    public ParceiroController(ParceiroService parceiroService) {
+        this.parceiroService = parceiroService;
+    }
+
     @GetMapping
-    public List<Map<String, String>> listarParceiros() {
-        return List.of(
-            Map.of("id", "1", "razaoSocial", "Empresa Teste BBTS", "cnpj", "00.000.000/0001-91", "status", "HOMOLOGADO")
-        );
+    public ResponseEntity<List<Parceiro>> listarParceiros() {
+        return ResponseEntity.ok(parceiroService.listarTodos());
+    }
+
+    @PostMapping
+    public ResponseEntity<Parceiro> criarParceiro(@RequestBody Parceiro parceiro) {
+        Parceiro novoParceiro = parceiroService.salvar(parceiro);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoParceiro);
     }
 }
