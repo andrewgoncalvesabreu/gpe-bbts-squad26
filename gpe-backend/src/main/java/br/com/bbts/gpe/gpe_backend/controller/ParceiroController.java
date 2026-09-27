@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/parceiros")
@@ -23,9 +24,38 @@ public class ParceiroController {
         return ResponseEntity.ok(parceiroService.listarTodos());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Parceiro> buscarPorId(@PathVariable UUID id) {
+        return ResponseEntity.ok(parceiroService.buscarPorId(id));
+    }
+
     @PostMapping
-    public ResponseEntity<Parceiro> criarParceiro(@RequestBody Parceiro parceiro) {
+    public ResponseEntity<Parceiro> criarParceiro(
+            @RequestBody Parceiro parceiro) {
+
         Parceiro novoParceiro = parceiroService.salvar(parceiro);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoParceiro);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(novoParceiro);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Parceiro> atualizarParceiro(
+            @PathVariable UUID id,
+            @RequestBody Parceiro parceiro) {
+
+        return ResponseEntity.ok(
+                parceiroService.atualizar(id, parceiro)
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluirParceiro(
+            @PathVariable UUID id) {
+
+        parceiroService.excluir(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

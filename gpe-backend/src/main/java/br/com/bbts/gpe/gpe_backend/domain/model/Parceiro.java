@@ -29,8 +29,9 @@ public class Parceiro {
     @Column(nullable = false, unique = true, length = 14)
     private String cnpj;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "tipo_organizacao", nullable = false, length = 50)
-    private String tipoOrganizacao;
+    private TipoOrganizacao tipoOrganizacao;
 
     @Column(name = "segmento_atuacao", length = 100)
     private String segmentoAtuacao;
@@ -46,6 +47,9 @@ public class Parceiro {
 
     @Column(name = "endereco_completo", columnDefinition = "TEXT")
     private String enderecoCompleto;
+
+    @Column(length = 500)
+    private String responsaveis;
 
     @Column(nullable = false, length = 50)
     private String status;
