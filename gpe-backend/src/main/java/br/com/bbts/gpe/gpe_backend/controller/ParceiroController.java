@@ -5,6 +5,7 @@ import br.com.bbts.gpe.gpe_backend.service.ParceiroService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,24 +32,24 @@ public class ParceiroController {
 
     @PostMapping
     public ResponseEntity<Parceiro> criarParceiro(
-            @RequestBody Parceiro parceiro) {
+        @Valid @RequestBody Parceiro parceiro) {
 
         Parceiro novoParceiro = parceiroService.salvar(parceiro);
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(novoParceiro);
-    }
+            .status(HttpStatus.CREATED)
+            .body(novoParceiro);
+}
 
     @PutMapping("/{id}")
     public ResponseEntity<Parceiro> atualizarParceiro(
-            @PathVariable UUID id,
-            @RequestBody Parceiro parceiro) {
+        @PathVariable UUID id,
+        @Valid @RequestBody Parceiro parceiro) {
 
         return ResponseEntity.ok(
-                parceiroService.atualizar(id, parceiro)
-        );
-    }
+            parceiroService.atualizar(id, parceiro)
+    );
+}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluirParceiro(

@@ -1,11 +1,14 @@
 package br.com.bbts.gpe.gpe_backend.service;
 
-import br.com.bbts.gpe.gpe_backend.domain.model.Parceiro;
-import br.com.bbts.gpe.gpe_backend.domain.repository.ParceiroRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+
+import br.com.bbts.gpe.gpe_backend.domain.model.Parceiro;
+import br.com.bbts.gpe.gpe_backend.domain.repository.ParceiroRepository;
+import br.com.bbts.gpe.gpe_backend.exception.BusinessException;
+import br.com.bbts.gpe.gpe_backend.exception.ResourceNotFoundException;
 
 @Service
 public class ParceiroService {
@@ -21,9 +24,11 @@ public class ParceiroService {
     }
 
     public Parceiro buscarPorId(UUID id) {
-        return parceiroRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Parceiro não encontrado"));
-    }
+    return parceiroRepository.findById(id)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Parceiro não encontrado")
+            );
+}
 
     public Parceiro salvar(Parceiro parceiro) {
 
@@ -32,8 +37,10 @@ public class ParceiroService {
         }
 
         if (parceiroRepository.existsByCnpj(parceiro.getCnpj())) {
-            throw new RuntimeException("Já existe um parceiro cadastrado com este CNPJ");
-        }
+            throw new BusinessException(
+            "Já existe um parceiro cadastrado com este CNPJ"
+    );
+}
 
         return parceiroRepository.save(parceiro);
     }
