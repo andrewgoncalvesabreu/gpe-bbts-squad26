@@ -49,6 +49,10 @@ public class ParceiroService {
 
         Parceiro parceiro = buscarPorId(id);
 
+        if (parceiroRepository.existsByCnpjAndIdNot(dados.getCnpj(), id)) {
+    throw new BusinessException("Já existe um parceiro cadastrado com este CNPJ");
+}
+
         parceiro.setRazaoSocial(dados.getRazaoSocial());
         parceiro.setNomeFantasia(dados.getNomeFantasia());
         parceiro.setCnpj(dados.getCnpj());
@@ -67,10 +71,10 @@ public class ParceiroService {
         return parceiroRepository.save(parceiro);
     }
 
-    public void excluir(UUID id) {
-
-        Parceiro parceiro = buscarPorId(id);
-
-        parceiroRepository.delete(parceiro);
-    }
+    // Exclusão lógica: preserva histórico e vínculos (oportunidades, instrumentos etc.)
+public void excluir(UUID id) {
+    Parceiro parceiro = buscarPorId(id);
+    parceiro.setStatus("INATIVO");
+    parceiroRepository.save(parceiro);
+}
 }

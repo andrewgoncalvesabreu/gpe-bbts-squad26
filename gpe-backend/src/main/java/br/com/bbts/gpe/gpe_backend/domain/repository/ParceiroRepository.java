@@ -13,4 +13,6 @@ public interface ParceiroRepository extends JpaRepository<Parceiro, UUID> {
     boolean existsByCnpj(String cnpj);
 
     Optional<Parceiro> findByCnpj(String cnpj);
+
+    boolean existsByCnpjAndIdNot(String cnpj, UUID id);
 }

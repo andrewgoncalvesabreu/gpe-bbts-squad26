@@ -35,16 +35,16 @@ export default function ParceiroDetailPage() {
   const excluir = () => {
     if (!parceiro) return
     confirmDialog({
-      message: `Excluir o parceiro "${parceiro.razaoSocial}"? Esta ação não pode ser desfeita.`,
-      header: 'Confirmar exclusão',
+      message: `Inativar o parceiro "${parceiro.razaoSocial}"? O histórico será mantido.`,
+      header: 'Confirmar inativação',
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Excluir',
+      acceptLabel: 'Inativar',
       rejectLabel: 'Cancelar',
       acceptClassName: 'p-button-danger',
       accept: async () => {
         try {
           await parceiroService.excluir(parceiro.id)
-          toast.success('Parceiro excluído.')
+          toast.success('Parceiro inativado.')
           navigate('/parceiros')
         } catch (err) {
           const { status, message } = parseApiError(err)

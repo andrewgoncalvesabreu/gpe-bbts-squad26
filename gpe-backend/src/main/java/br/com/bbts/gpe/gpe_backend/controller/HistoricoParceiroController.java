@@ -4,6 +4,8 @@ import br.com.bbts.gpe.gpe_backend.domain.model.HistoricoParceiro;
 import br.com.bbts.gpe.gpe_backend.domain.model.Parceiro;
 import br.com.bbts.gpe.gpe_backend.service.HistoricoParceiroService;
 import br.com.bbts.gpe.gpe_backend.service.ParceiroService;
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +42,7 @@ public class HistoricoParceiroController {
     @PostMapping
     public ResponseEntity<HistoricoParceiro> adicionarHistorico(
             @PathVariable UUID parceiroId,
-            @RequestBody HistoricoParceiro historico) {
+            @Valid @RequestBody HistoricoParceiro historico) {
 
         Parceiro parceiro = parceiroService.buscarPorId(parceiroId);
 
