@@ -1,6 +1,9 @@
 package br.com.bbts.gpe.gpe_backend.controller;
 
+import br.com.bbts.gpe.gpe_backend.domain.model.AvaliacaoOportunidade;
 import br.com.bbts.gpe.gpe_backend.domain.model.Oportunidade;
+import br.com.bbts.gpe.gpe_backend.dto.AvaliacaoRequestDTO;
+import br.com.bbts.gpe.gpe_backend.dto.StatusWorkflowDTO;
 import br.com.bbts.gpe.gpe_backend.service.OportunidadeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -32,8 +35,7 @@ public class OportunidadeController {
     }
 
     @PostMapping
-    public ResponseEntity<Oportunidade> criar(
-            @RequestBody Oportunidade oportunidade) {
+    public ResponseEntity<Oportunidade> criar(@RequestBody Oportunidade oportunidade) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(oportunidadeService.salvar(oportunidade));
@@ -50,5 +52,28 @@ public class OportunidadeController {
     public ResponseEntity<Void> excluir(@PathVariable UUID id) {
         oportunidadeService.excluir(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // --- RF005: Avaliação ---
+    @PostMapping("/{id}/avaliacoes")
+    public ResponseEntity<AvaliacaoOportunidade> avaliar(
+            @PathVariable UUID id,
+            @Valid @RequestBody AvaliacaoRequestDTO dto) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(oportunidadeService.avaliar(id, dto));
+    }
+
+    @GetMapping("/{id}/avaliacoes")
+    public ResponseEntity<List<AvaliacaoOportunidade>> listarAvaliacoes(@PathVariable UUID id) {
+        return ResponseEntity.ok(oportunidadeService.listarAvaliacoes(id));
+    }
+
+    // --- RF006: Aprovação / Troca de Status ---
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Oportunidade> alterarStatus(
+            @PathVariable UUID id,
+            @Valid @RequestBody StatusWorkflowDTO dto) {
+        return ResponseEntity.ok(oportunidadeService.alterarStatusWorkflow(id, dto.getNovoStatus()));
     }
 }
