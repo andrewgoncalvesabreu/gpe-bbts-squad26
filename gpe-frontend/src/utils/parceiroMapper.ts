@@ -108,7 +108,9 @@ export function formToPayload(v: ParceiroFormValues): ParceiroPayload {
   return {
     razaoSocial: v.razaoSocial.trim(),
     nomeFantasia: v.nomeFantasia.trim() || null,
-    cnpj: onlyDigits(v.cnpj),
+    cnpj: v.cnpj
+    .toUpperCase()
+    .replace(/[^0-9A-Z]/g, ''),
     tipoOrganizacao: v.tipoOrganizacao as ParceiroPayload['tipoOrganizacao'],
     segmentoAtuacao: v.areas.join(', ') || null,
     porte: v.porte || null,

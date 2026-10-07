@@ -147,7 +147,7 @@ export default function ParceiroFormPage() {
             <InputText value={values.nomeFantasia} onChange={(e) => set('nomeFantasia', e.target.value)} placeholder="Nome fantasia ou sigla" />
           </FormField>
           <FormField label="CNPJ" required error={errors.cnpj} className="md:col-span-2">
-            <InputText value={maskCnpj(values.cnpj)} onChange={(e) => set('cnpj', e.target.value)} placeholder="00.000.000/0000-00" inputMode="numeric" className={errors.cnpj ? 'p-invalid' : ''} />
+            <InputText value={maskCnpj(values.cnpj)} onChange={(e) => set('cnpj', e.target.value)} placeholder="00.000.000/0000-00" inputMode="text" className={errors.cnpj ? 'p-invalid' : ''} />
           </FormField>
           <FormField label="Tipo de Instituição" required error={errors.tipoOrganizacao} className="md:col-span-2">
             <Dropdown value={values.tipoOrganizacao || null} options={TIPO_ORGANIZACAO_OPTIONS} onChange={(e) => set('tipoOrganizacao', e.value ?? '')} placeholder="Selecione um tipo..." className={errors.tipoOrganizacao ? 'p-invalid' : ''} />
