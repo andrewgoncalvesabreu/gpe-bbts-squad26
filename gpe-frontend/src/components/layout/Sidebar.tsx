@@ -13,7 +13,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Prosp', icon: 'pi-file', to: '/prospeccao', enabled: false },
   { label: 'Parceiros', icon: 'pi-users', to: '/parceiros', enabled: true },
   { label: 'Due Dil', icon: 'pi-shield', to: '/due-diligence', enabled: false },
-  { label: 'Contratos', icon: 'pi-folder', to: '/contratos', enabled: false },
+  { label: 'Instrumentos', icon: 'pi-folder', to: '/instrumentos', enabled: true },
   { label: 'Exec', icon: 'pi-chart-line', to: '/execucao', enabled: false },
   { label: 'Financ', icon: 'pi-wallet', to: '/financeiro', enabled: false },
   { label: 'Gov', icon: 'pi-heart', to: '/governanca', enabled: false },
