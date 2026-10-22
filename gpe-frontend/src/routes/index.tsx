@@ -7,6 +7,7 @@ import OportunidadesListPage from '../pages/oportunidades/OportunidadesListPage'
 import ParceiroDetailPage from '../pages/parceiros/ParceiroDetailPage'
 import ParceiroFormPage from '../pages/parceiros/ParceiroFormPage'
 import ParceirosListPage from '../pages/parceiros/ParceirosListPage'
+import InstrumentosPage from '../pages/instrumentos/InstrumentosPage'
 
 export function AppRoutes() {
   return (
@@ -20,11 +21,16 @@ export function AppRoutes() {
         <Route path="parceiros/:id" element={<ParceiroDetailPage />} />
         <Route path="parceiros/:id/editar" element={<ParceiroFormPage />} />
 
+<<<<<<< HEAD
         {/* Módulo Oportunidades */}
         <Route path="oportunidades" element={<OportunidadesListPage />} />
         <Route path="oportunidades/novo" element={<OportunidadeFormPage />} />
         <Route path="oportunidades/:id" element={<OportunidadeDetailPage />} />
         <Route path="oportunidades/:id/editar" element={<OportunidadeFormPage />} />
+=======
+        {/* Módulo de instrumentos jurídicos */}
+        <Route path="instrumentos" element={<InstrumentosPage />} />
+>>>>>>> 09f57f377197674bdade021e273e59758f885ac2
 
         <Route path="*" element={<NotFoundPage />} />
       </Route>

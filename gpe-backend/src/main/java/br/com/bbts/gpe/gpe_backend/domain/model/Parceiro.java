@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import br.com.bbts.gpe.gpe_backend.domain.validation.Cnpj;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -35,6 +36,7 @@ public class Parceiro {
 
     @NotBlank(message = "CNPJ é obrigatório")
     @Size(min = 14, max = 14, message = "CNPJ deve possuir 14 caracteres")
+    @Cnpj
     @Column(nullable = false, unique = true, length = 14)
     private String cnpj;
 

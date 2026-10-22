@@ -18,6 +18,7 @@ Entre as principais funcionalidades previstas estão:
 
 * 🔎 Mapeamento de parceiros e oportunidades
 * 🤝 Gestão de parcerias estratégicas
+* 📄 Cadastro e acompanhamento de instrumentos jurídicos vinculados a parceiros e oportunidades
 * 📊 Avaliação e acompanhamento de oportunidades
 * 📋 Gestão de informações e documentos
 * 📈 Dashboards e indicadores gerenciais
