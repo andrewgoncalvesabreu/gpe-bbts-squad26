@@ -56,3 +56,8 @@ export function formatDate(iso?: string | null): string {
   if (Number.isNaN(date.getTime())) return '—'
   return date.toLocaleDateString('pt-BR')
 }
+
+export function formatMoney(value?: number | null): string {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return '—'
+  return Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}

@@ -1,6 +1,9 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '../components/layout/AppLayout'
 import NotFoundPage from '../pages/NotFoundPage'
+import OportunidadeDetailPage from '../pages/oportunidades/OportunidadeDetailPage'
+import OportunidadeFormPage from '../pages/oportunidades/OportunidadeFormPage'
+import OportunidadesListPage from '../pages/oportunidades/OportunidadesListPage'
 import ParceiroDetailPage from '../pages/parceiros/ParceiroDetailPage'
 import ParceiroFormPage from '../pages/parceiros/ParceiroFormPage'
 import ParceirosListPage from '../pages/parceiros/ParceirosListPage'
@@ -16,6 +19,12 @@ export function AppRoutes() {
         <Route path="parceiros/novo" element={<ParceiroFormPage />} />
         <Route path="parceiros/:id" element={<ParceiroDetailPage />} />
         <Route path="parceiros/:id/editar" element={<ParceiroFormPage />} />
+
+        {/* Módulo Oportunidades */}
+        <Route path="oportunidades" element={<OportunidadesListPage />} />
+        <Route path="oportunidades/novo" element={<OportunidadeFormPage />} />
+        <Route path="oportunidades/:id" element={<OportunidadeDetailPage />} />
+        <Route path="oportunidades/:id/editar" element={<OportunidadeFormPage />} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Route>

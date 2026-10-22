@@ -1,5 +1,5 @@
 import type { Parceiro, ParceiroPayload } from '../types/parceiro'
-import { maskCep, onlyDigits } from './format'
+import { maskCep } from './format'
 
 /**
  * O backend guarda endereço, responsáveis e áreas de atuação em campos de texto único.
