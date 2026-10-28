@@ -29,3 +29,7 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.flywaydb: INFO
+
+gpe:
+  storage:
+    documentos: ${GPE_DOCUMENTOS_DIR:./storage/documentos}
