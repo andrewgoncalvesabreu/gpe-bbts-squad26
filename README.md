@@ -341,6 +341,10 @@ V3__create_oportunidades.sql
 
 > ⚠️ Evite alterar migrations que já foram executadas em ambientes compartilhados. Para novas alterações, crie uma nova migration.
 
+### Erro de checksum em banco de desenvolvimento antigo
+
+Algumas versões anteriores usavam V8 para o histórico do parceiro e V9 para documentos, enquanto a sequência atual usa essas versões em ordem diferente. Se o backend informar checksum divergente nas migrações V8, V9 ou V11, faça backup do banco e, após confirmar que essas versões foram aplicadas com sucesso, execute `flyway repair` uma única vez usando a mesma URL e credenciais do PostgreSQL configuradas para o backend. O `repair` só atualiza os metadados do Flyway; a migração V12 então normaliza o esquema antigo dos documentos preservando os registros e arquivos. Não apague o volume do PostgreSQL nem edite a tabela `flyway_schema_history` manualmente.
+
 ---
 
 # 🛠️ Comandos Úteis

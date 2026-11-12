@@ -118,15 +118,20 @@ O projeto exige uma parceria existente e contém nome, descrição e status. A o
 
 ## 5. Persistência e evolução do schema
 
-As migrações em `gpe-backend/src/main/resources/db/migration/` são executadas em ordem pelo Flyway. O conjunto atual vai de V1 a V11:
+As migrações em `gpe-backend/src/main/resources/db/migration/` são executadas em ordem pelo Flyway. O conjunto atual vai de V1 a V12:
 
 - V1–V7 criam e ampliam dados de parceiros, oportunidades, avaliações, workflow, instrumentos e vigência.
 - V8 acrescenta os dados de responsável ao histórico.
 - V9 cria documentos, versões e eventos de assinatura.
 - V10 cria parcerias, projetos e planos de trabalho, incluindo objetivos, entregas e marcos.
-- V11 associa documentos a parcerias formalizadas.
+- V11 associa documentos a parcerias formalizadas e registra versões e eventos de assinatura.
+- V12 normaliza o esquema documental legado para os nomes e vínculos usados atualmente pela aplicação.
 
 Flyway é a fonte de evolução do schema; Hibernate apenas valida se o mapeamento e o schema estão compatíveis. Não renomeie nem edite uma migração que já foi aplicada em ambientes compartilhados: crie uma nova versão.
+
+#### Recuperar banco que executou a sequência documental anterior
+
+Uma versão antiga do desenvolvimento usava V8 para o histórico, V9 para documentos e versões e uma estrutura documental diferente. Se esse banco apresentar divergência de checksum nas versões 8, 9 ou 11 ao iniciar a versão atual, faça backup e execute `flyway repair` uma única vez para reconciliar os metadados; isso não reaplica nem corrige a estrutura das tabelas. Em seguida, a V12 converte os nomes de colunas antigos e completa os campos e vínculos necessários. Não use `repair` em um banco cujo histórico/migrações aplicadas não tenham sido conferidos.
 
 ## 6. API disponível
 
