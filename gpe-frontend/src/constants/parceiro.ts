@@ -47,6 +47,9 @@ export const TIPO_HISTORICO_OPTIONS = [
   { label: 'Alteração cadastral', value: 'ALTERACAO_CADASTRAL' },
   { label: 'Acordo celebrado', value: 'ACORDO' },
   { label: 'Projeto executado', value: 'PROJETO' },
+  { label: 'Oportunidade registrada ou atualizada', value: 'OPORTUNIDADE' },
+  { label: 'Oportunidade avaliada', value: 'AVALIACAO_OPORTUNIDADE' },
+  { label: 'Decisão do fluxo de aprovação', value: 'FLUXO_APROVACAO' },
 ]
 
 export const UF_OPTIONS = [

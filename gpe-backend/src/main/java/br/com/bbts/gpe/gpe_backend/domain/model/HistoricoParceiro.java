@@ -32,6 +32,10 @@ public class HistoricoParceiro {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String descricao;
 
+    @NotBlank(message = "Matrícula do responsável é obrigatória")
+    @Column(name = "responsavel_matricula", nullable = false, length = 50)
+    private String responsavelMatricula;
+
     @Column(name = "data_evento", nullable = false)
     private LocalDateTime dataEvento;
 }

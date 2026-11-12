@@ -5,6 +5,8 @@ import ParceiroDetailPage from '../pages/parceiros/ParceiroDetailPage'
 import ParceiroFormPage from '../pages/parceiros/ParceiroFormPage'
 import ParceirosListPage from '../pages/parceiros/ParceirosListPage'
 import InstrumentosPage from '../pages/instrumentos/InstrumentosPage'
+import OportunidadesPage from '../pages/oportunidades/OportunidadesPage'
+import ProjetosPage from '../pages/projetos/ProjetosPage'
 
 export function AppRoutes() {
   return (
@@ -20,6 +22,8 @@ export function AppRoutes() {
 
         {/* Módulo de instrumentos jurídicos */}
         <Route path="instrumentos" element={<InstrumentosPage />} />
+        <Route path="oportunidades" element={<OportunidadesPage />} />
+        <Route path="projetos" element={<ProjetosPage />} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Route>

@@ -1,10 +1,12 @@
 package br.com.bbts.gpe.gpe_backend.service;
 
 import br.com.bbts.gpe.gpe_backend.domain.model.InstrumentoJuridico;
+import br.com.bbts.gpe.gpe_backend.domain.model.HistoricoParceiro;
 import br.com.bbts.gpe.gpe_backend.domain.model.Oportunidade;
 import br.com.bbts.gpe.gpe_backend.domain.model.Parceiro;
 import br.com.bbts.gpe.gpe_backend.domain.model.ProrrogacaoInstrumento;
 import br.com.bbts.gpe.gpe_backend.domain.repository.InstrumentoRepository;
+import br.com.bbts.gpe.gpe_backend.domain.repository.HistoricoParceiroRepository;
 import br.com.bbts.gpe.gpe_backend.domain.repository.OportunidadeRepository;
 import br.com.bbts.gpe.gpe_backend.domain.repository.ProrrogacaoInstrumentoRepository;
 import br.com.bbts.gpe.gpe_backend.dto.ProrrogacaoInstrumentoRequestDTO;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class InstrumentoService {
@@ -23,16 +26,19 @@ public class InstrumentoService {
     private final InstrumentoRepository instrumentoRepository;
     private final OportunidadeRepository oportunidadeRepository;
     private final ProrrogacaoInstrumentoRepository prorrogacaoRepository;
+    private final HistoricoParceiroRepository historicoParceiroRepository;
     private final ParceiroService parceiroService;
 
     public InstrumentoService(
             InstrumentoRepository instrumentoRepository,
             OportunidadeRepository oportunidadeRepository,
             ProrrogacaoInstrumentoRepository prorrogacaoRepository,
+            HistoricoParceiroRepository historicoParceiroRepository,
             ParceiroService parceiroService) {
         this.instrumentoRepository = instrumentoRepository;
         this.oportunidadeRepository = oportunidadeRepository;
         this.prorrogacaoRepository = prorrogacaoRepository;
+        this.historicoParceiroRepository = historicoParceiroRepository;
         this.parceiroService = parceiroService;
     }
 
@@ -46,8 +52,11 @@ public class InstrumentoService {
     }
 
     @Transactional
-    public InstrumentoJuridico salvar(InstrumentoJuridico instrumento) {
+    public InstrumentoJuridico salvar(InstrumentoJuridico instrumento, String responsavelMatricula) {
         validarVigencia(instrumento.getDataInicioVigencia(), instrumento.getDataFimVigencia());
+        if (responsavelMatricula == null || responsavelMatricula.isBlank()) {
+            throw new BusinessException("Informe a matrícula do responsável pela operação");
+        }
 
         if (instrumento.getParceiro() == null || instrumento.getParceiro().getId() == null) {
             throw new BusinessException("Informe o parceiro do instrumento (parceiro.id)");
@@ -71,7 +80,15 @@ public class InstrumentoService {
             instrumento.setOportunidade(oportunidade);
         }
 
-        return instrumentoRepository.save(instrumento);
+        InstrumentoJuridico salvo = instrumentoRepository.save(instrumento);
+        historicoParceiroRepository.save(HistoricoParceiro.builder()
+                .parceiro(parceiro)
+                .tipo("ACORDO")
+                .descricao("Instrumento jurídico cadastrado: " + salvo.getNome() + ".")
+                .responsavelMatricula(responsavelMatricula.trim())
+                .dataEvento(LocalDateTime.now())
+                .build());
+        return salvo;
     }
 
     @Transactional(readOnly = true)

@@ -30,6 +30,7 @@ interface FormValues {
   dataFimVigencia: string
   parceiroId: string
   oportunidadeId: string
+  responsavelMatricula: string
 }
 
 const EMPTY_FORM: FormValues = {
@@ -41,6 +42,7 @@ const EMPTY_FORM: FormValues = {
   dataFimVigencia: '',
   parceiroId: '',
   oportunidadeId: '',
+  responsavelMatricula: '',
 }
 
 async function carregarDados() {
@@ -114,6 +116,7 @@ export default function InstrumentosPage() {
     if (!values.nome.trim()) nextErrors.nome = 'Nome do instrumento é obrigatório'
     if (!values.tipo) nextErrors.tipo = 'Selecione o tipo de instrumento'
     if (!values.parceiroId) nextErrors.parceiroId = 'Selecione o parceiro'
+    if (!values.responsavelMatricula.trim()) nextErrors.responsavelMatricula = 'Informe a matrícula do responsável'
     if (!values.dataInicioVigencia) nextErrors.dataInicioVigencia = 'Data de início é obrigatória'
     if (!values.dataFimVigencia) nextErrors.dataFimVigencia = 'Data de término é obrigatória'
     else if (values.dataInicioVigencia && values.dataFimVigencia < values.dataInicioVigencia) {
@@ -135,7 +138,7 @@ export default function InstrumentosPage() {
         dataFimVigencia: values.dataFimVigencia,
         parceiro: { id: values.parceiroId },
         oportunidade: values.oportunidadeId ? { id: values.oportunidadeId } : null,
-      })
+      }, values.responsavelMatricula.trim())
       toast.success('Instrumento jurídico cadastrado com sucesso.')
       fecharDialog()
       setLoading(true)
@@ -298,6 +301,15 @@ export default function InstrumentosPage() {
               }}
               placeholder="Selecione um parceiro..."
               className={errors.parceiroId ? 'p-invalid' : ''}
+            />
+          </FormField>
+          <FormField label="Matrícula do responsável" required error={errors.responsavelMatricula}>
+            <InputText
+              value={values.responsavelMatricula}
+              maxLength={50}
+              onChange={(event) => setValue('responsavelMatricula', event.target.value)}
+              className={errors.responsavelMatricula ? 'p-invalid' : ''}
+              placeholder="Informe sua matrícula"
             />
           </FormField>
           <FormField label="Oportunidade vinculada (opcional)">
