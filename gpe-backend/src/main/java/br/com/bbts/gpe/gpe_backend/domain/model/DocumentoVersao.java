@@ -1,5 +1,6 @@
 package br.com.bbts.gpe.gpe_backend.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,6 +21,7 @@ public class DocumentoVersao {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "documento_id", nullable = false)
+    @JsonIgnore
     private Documento documento;
 
     @Column(name = "numero_versao", nullable = false)
@@ -42,6 +44,9 @@ public class DocumentoVersao {
 
     @Column(name = "data_envio", nullable = false)
     private LocalDateTime dataEnvio;
+
+    @Column(name = "responsavel_matricula", length = 50)
+    private String responsavelMatricula;
 
     @PrePersist
     void prePersist() {

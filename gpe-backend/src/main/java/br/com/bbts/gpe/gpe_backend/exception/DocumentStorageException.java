@@ -1,0 +1,7 @@
+package br.com.bbts.gpe.gpe_backend.exception;
+
+public class DocumentStorageException extends RuntimeException {
+    public DocumentStorageException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}

@@ -3,6 +3,7 @@ import type { StatusOportunidade } from '../types/oportunidade'
 export const STATUS_OPORTUNIDADE_OPTIONS: { label: string; value: StatusOportunidade }[] = [
   { label: 'Triagem', value: 'TRIAGEM' },
   { label: 'Em avaliação', value: 'EM_AVALIACAO' },
+  { label: 'Em aprovação', value: 'EM_APROVACAO' },
   { label: 'Aprovada', value: 'APROVADA' },
   { label: 'Rejeitada', value: 'REJEITADA' },
   { label: 'Cancelada', value: 'CANCELADA' },
@@ -11,6 +12,7 @@ export const STATUS_OPORTUNIDADE_OPTIONS: { label: string; value: StatusOportuni
 export const STATUS_OPORTUNIDADE_SEVERITY: Record<StatusOportunidade, 'success' | 'info' | 'warning' | 'danger' | 'secondary'> = {
   TRIAGEM: 'info',
   EM_AVALIACAO: 'warning',
+  EM_APROVACAO: 'warning',
   APROVADA: 'success',
   REJEITADA: 'danger',
   CANCELADA: 'secondary',

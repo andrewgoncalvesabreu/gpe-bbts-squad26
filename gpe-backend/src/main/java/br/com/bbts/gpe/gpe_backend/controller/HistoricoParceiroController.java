@@ -47,6 +47,7 @@ public class HistoricoParceiroController {
         Parceiro parceiro = parceiroService.buscarPorId(parceiroId);
 
         historico.setParceiro(parceiro);
+        historico.setResponsavelMatricula(historico.getResponsavelMatricula().trim());
 
         HistoricoParceiro novoHistorico =
                 historicoService.salvar(historico);

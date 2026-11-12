@@ -11,4 +11,5 @@ public interface DocumentoRepository extends JpaRepository<Documento, UUID> {
     List<Documento> findByParceiroIdAndAtivoTrueOrderByDataAtualizacaoDesc(UUID parceiroId);
     List<Documento> findByOportunidadeIdAndAtivoTrueOrderByDataAtualizacaoDesc(UUID oportunidadeId);
     List<Documento> findByInstrumentoIdAndAtivoTrueOrderByDataAtualizacaoDesc(UUID instrumentoId);
+    List<Documento> findByParceriaIdAndAtivoTrueOrderByDataAtualizacaoDesc(UUID parceriaId);
 }

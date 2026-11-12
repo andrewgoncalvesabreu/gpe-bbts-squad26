@@ -10,7 +10,9 @@ interface NavItem {
 // Mesma ordem do protótipo. Habilite (enabled: true) conforme cada módulo for implementado.
 const NAV_ITEMS: NavItem[] = [
   { label: 'Dash', icon: 'pi-chart-bar', to: '/dashboard', enabled: false },
-  { label: 'Oportunidades', icon: 'pi-file', to: '/oportunidades', enabled: true },
+  { label: 'Prosp', icon: 'pi-file', to: '/prospeccao', enabled: false },
+  { label: 'Oportunidades', icon: 'pi-lightbulb', to: '/oportunidades', enabled: true },
+  { label: 'Projetos', icon: 'pi-briefcase', to: '/projetos', enabled: true },
   { label: 'Parceiros', icon: 'pi-users', to: '/parceiros', enabled: true },
   { label: 'Due Dil', icon: 'pi-shield', to: '/due-diligence', enabled: false },
   { label: 'Instrumentos', icon: 'pi-folder', to: '/instrumentos', enabled: true },

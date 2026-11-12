@@ -25,6 +25,35 @@ Entre as principais funcionalidades previstas estão:
 * 🔐 Controle de acesso e autenticação
 * 🏛️ Governança e conformidade com normas corporativas
 
+## Funcionalidades implementadas
+
+Para a explicação da arquitetura, dos fluxos completos e dos limites operacionais, consulte [Documentação de arquitetura e funcionamento](./docs/ARQUITETURA-E-FUNCIONAMENTO.md).
+
+* Cadastro e classificação de parceiros com histórico de alterações e identificação do responsável pela matrícula informada.
+* Registro e avaliação de oportunidades, com envio para aprovação, decisão e justificativa de reprovação.
+* Cadastro de instrumentos, controle e prorrogação de vigência, histórico de eventos e alertas de vencimento na interface e no log agendado do backend.
+* Os endpoints de cadastro/alteração/inativação de parceiros e cadastro de instrumentos recebem a matrícula no cabeçalho `X-Responsavel-Matricula`; avaliações e decisões de oportunidades recebem a matrícula no corpo da requisição.
+* Os fluxos que coletam matrícula registram o valor informado pelo operador. Como não há autenticação configurada, a matrícula não comprova identidade e as decisões de aprovação ainda não têm controle de autorização por perfil.
+* Documentos podem ser anexados a parcerias formalizadas, baixados e versionados; o sistema registra o histórico de solicitações de assinatura.
+* Parcerias formalizadas vinculam um parceiro a um instrumento jurídico; projetos e planos de trabalho são vinculados a essas parcerias e projetos.
+
+### Documentos, assinatura e projetos (US010–US014)
+
+O upload aceita PDF, DOCX, XLSX, PNG e JPG/JPEG, com limite de 20 MB por arquivo. O back-end valida a extensão e a assinatura básica do conteúdo, rejeita arquivos Office com macros e calcula SHA-256. Os arquivos são guardados fora do diretório público da aplicação. Configure `DOCUMENT_STORAGE_PATH` para apontar ao armazenamento persistente; o padrão é `./data/documents`, relativo ao diretório de execução do back-end. Em contêiner, monte esse caminho como volume persistente. O banco guarda os metadados e o histórico, enquanto os bytes ficam nesse armazenamento, que deve ser preservado em backup junto com o banco.
+
+A integração de assinatura é um mock local substituível por um provedor real. Ela recebe a versão do documento e produz um protocolo/status simulado, sem efetuar assinatura eletrônica com validade jurídica. Para testar os caminhos, `SIGNATURE_MOCK_FAILURE=true` simula falha e `SIGNATURE_MOCK_RESULT_STATUS` aceita `AGUARDANDO_ASSINATURA`, `ASSINADO`, `RECUSADO` ou `CANCELADO` (padrão `AGUARDANDO_ASSINATURA`). Use essas configurações apenas no ambiente apropriado; não configure o mock como integração de produção.
+
+Principais endpoints adicionados (prefixo `/api/v1`):
+
+| Recurso | Endpoints |
+| --- | --- |
+| Documentos (US010–US012) | `POST /parceiros/{parceiroId}/documentos` (requer `parceriaId` no multipart), `GET /parceiros/{parceiroId}/documentos`, `GET /documentos/{documentoId}` |
+| Versões e assinatura | `POST /documentos/{documentoId}/versoes`, `GET /documentos/{documentoId}/versoes`, `GET /documentos/{documentoId}/versoes/{numeroVersao}/arquivo`, `POST/GET /documentos/{documentoId}/assinaturas` |
+| Parcerias e projetos (US013) | `POST/GET /parcerias`, `POST/GET /projetos`, `GET/PUT/DELETE /projetos/{id}` |
+| Plano de trabalho (US014) | `GET/POST/PUT/DELETE /projetos/{projetoId}/plano-trabalho` |
+
+O cadastro de projeto exige uma parceria existente. Planos de trabalho suportam objetivos, entregas, cronograma, responsáveis e marcos; datas de entregas e marcos precisam estar dentro do período definido no plano.
+
 ---
 
 # 🏗️ Arquitetura
@@ -36,10 +65,10 @@ O projeto utiliza uma arquitetura em **Monorepo**, mantendo Back-end, Front-end 
 | Camada                    | Tecnologia                 |
 | ------------------------- | -------------------------- |
 | ⚙️ Back-end               | Java 21 LTS                |
-| 🚀 Framework              | Spring Boot 3.x            |
+| 🚀 Framework              | Spring Boot 4.1.1          |
 | 🗄️ Banco de Dados        | PostgreSQL 16              |
 | 🔄 Migrações              | Flyway                     |
-| 🔐 Segurança              | Spring Security + Keycloak |
+| 🔐 Segurança              | Spring Security (rotas abertas atualmente); Keycloak no Compose, ainda não integrado |
 | 🌐 Front-end              | React + TypeScript         |
 | ⚡ Build Front-end         | Vite                       |
 | 🎨 UI                     | PrimeReact + Tailwind CSS  |
@@ -49,10 +78,10 @@ O projeto utiliza uma arquitetura em **Monorepo**, mantendo Back-end, Front-end 
 
 ### Back-end
 
-O Back-end foi desenvolvido utilizando **Java 21** e **Spring Boot 3.x**, contando com:
+O Back-end foi desenvolvido utilizando **Java 21** e **Spring Boot 4.1.1**, contando com:
 
 * Spring Data JPA
-* Spring Security
+* Spring Security (a API atualmente permite acesso a todas as rotas; autenticação/autorização ainda não configuradas)
 * Bean Validation
 * Flyway
 * Maven

@@ -32,9 +32,10 @@ public class ParceiroController {
 
     @PostMapping
     public ResponseEntity<Parceiro> criarParceiro(
-        @Valid @RequestBody Parceiro parceiro) {
+        @Valid @RequestBody Parceiro parceiro,
+        @RequestHeader("X-Responsavel-Matricula") String responsavelMatricula) {
 
-        Parceiro novoParceiro = parceiroService.salvar(parceiro);
+        Parceiro novoParceiro = parceiroService.salvar(parceiro, responsavelMatricula);
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -44,18 +45,20 @@ public class ParceiroController {
     @PutMapping("/{id}")
     public ResponseEntity<Parceiro> atualizarParceiro(
         @PathVariable UUID id,
-        @Valid @RequestBody Parceiro parceiro) {
+        @Valid @RequestBody Parceiro parceiro,
+        @RequestHeader("X-Responsavel-Matricula") String responsavelMatricula) {
 
         return ResponseEntity.ok(
-            parceiroService.atualizar(id, parceiro)
+            parceiroService.atualizar(id, parceiro, responsavelMatricula)
     );
 }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluirParceiro(
-            @PathVariable UUID id) {
+            @PathVariable UUID id,
+            @RequestHeader("X-Responsavel-Matricula") String responsavelMatricula) {
 
-        parceiroService.excluir(id);
+        parceiroService.excluir(id, responsavelMatricula);
 
         return ResponseEntity.noContent().build();
     }

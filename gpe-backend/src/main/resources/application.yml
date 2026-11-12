@@ -25,6 +25,17 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 22MB
+
+app:
+  signature:
+    mock:
+      failure: ${SIGNATURE_MOCK_FAILURE:false}
+      result-status: ${SIGNATURE_MOCK_RESULT_STATUS:AGUARDANDO_ASSINATURA}
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
@@ -32,4 +43,4 @@ logging:
 
 gpe:
   storage:
-    documentos: ${GPE_DOCUMENTOS_DIR:./storage/documentos}
+    documentos: ${DOCUMENT_STORAGE_PATH:${GPE_DOCUMENTOS_DIR:./storage/documentos}}

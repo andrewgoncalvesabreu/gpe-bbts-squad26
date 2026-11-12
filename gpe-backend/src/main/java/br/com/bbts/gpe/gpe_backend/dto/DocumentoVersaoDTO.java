@@ -10,5 +10,6 @@ public record DocumentoVersaoDTO(
         String contentType,
         Long tamanhoBytes,
         String hashSha256,
+        String responsavelMatricula,
         LocalDateTime dataEnvio) {
 }

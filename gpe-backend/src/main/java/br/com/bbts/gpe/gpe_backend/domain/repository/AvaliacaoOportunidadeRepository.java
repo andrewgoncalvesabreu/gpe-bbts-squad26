@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository
 public interface AvaliacaoOportunidadeRepository extends JpaRepository<AvaliacaoOportunidade, UUID> {
     List<AvaliacaoOportunidade> findByOportunidadeIdOrderByDataAvaliacaoDesc(UUID oportunidadeId);
+
+    boolean existsByOportunidadeId(UUID oportunidadeId);
 }

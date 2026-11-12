@@ -1,6 +1,9 @@
+import type { Parceiro } from './parceiro'
+
 export type StatusOportunidade =
   | 'TRIAGEM'
   | 'EM_AVALIACAO'
+  | 'EM_APROVACAO'
   | 'APROVADA'
   | 'REJEITADA'
   | 'CANCELADA'
@@ -14,7 +17,7 @@ export interface ParceiroResumo {
 export interface Oportunidade {
   id: string
   titulo: string
-  parceiro: ParceiroResumo
+  parceiro: ParceiroResumo | Pick<Parceiro, 'id' | 'razaoSocial'>
   origem: string
   descricao: string
   objetivos: string
@@ -64,4 +67,9 @@ export interface AvaliacaoPayload {
   viabilidadeTecnica: number
   parecerTecnico?: string | null
   avaliadorMatricula: string
+}
+
+export interface WorkflowPayload {
+  responsavelMatricula: string
+  justificativa?: string
 }

@@ -3,7 +3,7 @@ package br.com.bbts.gpe.gpe_backend.controller;
 import br.com.bbts.gpe.gpe_backend.domain.model.AvaliacaoOportunidade;
 import br.com.bbts.gpe.gpe_backend.domain.model.Oportunidade;
 import br.com.bbts.gpe.gpe_backend.dto.AvaliacaoRequestDTO;
-import br.com.bbts.gpe.gpe_backend.dto.StatusWorkflowDTO;
+import br.com.bbts.gpe.gpe_backend.dto.WorkflowDecisionDTO;
 import br.com.bbts.gpe.gpe_backend.service.OportunidadeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -35,7 +35,7 @@ public class OportunidadeController {
     }
 
     @PostMapping
-    public ResponseEntity<Oportunidade> criar(@RequestBody Oportunidade oportunidade) {
+    public ResponseEntity<Oportunidade> criar(@Valid @RequestBody Oportunidade oportunidade) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(oportunidadeService.salvar(oportunidade));
@@ -44,7 +44,7 @@ public class OportunidadeController {
     @PutMapping("/{id}")
     public ResponseEntity<Oportunidade> atualizar(
             @PathVariable UUID id,
-            @RequestBody Oportunidade oportunidade) {
+            @Valid @RequestBody Oportunidade oportunidade) {
         return ResponseEntity.ok(oportunidadeService.atualizar(id, oportunidade));
     }
 
@@ -69,11 +69,24 @@ public class OportunidadeController {
         return ResponseEntity.ok(oportunidadeService.listarAvaliacoes(id));
     }
 
-    // --- RF006: Aprovação / Troca de Status ---
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<Oportunidade> alterarStatus(
+    @PostMapping("/{id}/enviar-aprovacao")
+    public ResponseEntity<Oportunidade> enviarParaAprovacao(
             @PathVariable UUID id,
-            @Valid @RequestBody StatusWorkflowDTO dto) {
-        return ResponseEntity.ok(oportunidadeService.alterarStatusWorkflow(id, dto.getNovoStatus()));
+            @Valid @RequestBody WorkflowDecisionDTO dto) {
+        return ResponseEntity.ok(oportunidadeService.enviarParaAprovacao(id, dto));
+    }
+
+    @PostMapping("/{id}/aprovar")
+    public ResponseEntity<Oportunidade> aprovar(
+            @PathVariable UUID id,
+            @Valid @RequestBody WorkflowDecisionDTO dto) {
+        return ResponseEntity.ok(oportunidadeService.aprovar(id, dto));
+    }
+
+    @PostMapping("/{id}/reprovar")
+    public ResponseEntity<Oportunidade> reprovar(
+            @PathVariable UUID id,
+            @Valid @RequestBody WorkflowDecisionDTO dto) {
+        return ResponseEntity.ok(oportunidadeService.reprovar(id, dto));
     }
 }

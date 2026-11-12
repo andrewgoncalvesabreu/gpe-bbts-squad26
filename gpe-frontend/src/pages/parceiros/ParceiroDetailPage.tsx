@@ -12,6 +12,7 @@ import { maskCnpj } from '../../utils/format'
 import { HistoricoTab } from './components/HistoricoTab'
 import { ParceiroInfoTab } from './components/ParceiroInfoTab'
 import { ParceiroStatusTag } from './components/ParceiroStatusTag'
+import { DocumentosTab } from './components/DocumentosTab'
 
 export default function ParceiroDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -42,8 +43,10 @@ export default function ParceiroDetailPage() {
       rejectLabel: 'Cancelar',
       acceptClassName: 'p-button-danger',
       accept: async () => {
+        const responsavelMatricula = window.prompt('Informe a matrícula do responsável pela operação')?.trim()
+        if (!responsavelMatricula) return
         try {
-          await parceiroService.excluir(parceiro.id)
+          await parceiroService.excluir(parceiro.id, responsavelMatricula)
           toast.success('Parceiro inativado.')
           navigate('/parceiros')
         } catch (err) {
@@ -99,7 +102,9 @@ export default function ParceiroDetailPage() {
         {/* Abas previstas no protótipo, aguardando os módulos correspondentes */}
         <TabPanel header="Parcerias" disabled />
         <TabPanel header="Due Diligence" disabled />
-        <TabPanel header="Documentos" disabled />
+        <TabPanel header="Documentos">
+          <DocumentosTab parceiroId={parceiro.id} />
+        </TabPanel>
       </TabView>
     </div>
   )

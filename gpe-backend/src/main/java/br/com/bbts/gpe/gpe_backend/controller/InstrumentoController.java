@@ -41,8 +41,10 @@ public class InstrumentoController {
 
     @PostMapping
     public ResponseEntity<InstrumentoJuridico> criar(
-            @Valid @RequestBody InstrumentoJuridico instrumento) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(instrumentoService.salvar(instrumento));
+            @Valid @RequestBody InstrumentoJuridico instrumento,
+            @RequestHeader("X-Responsavel-Matricula") String responsavelMatricula) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(instrumentoService.salvar(instrumento, responsavelMatricula));
     }
 
     @GetMapping("/{id}/prorrogacoes")

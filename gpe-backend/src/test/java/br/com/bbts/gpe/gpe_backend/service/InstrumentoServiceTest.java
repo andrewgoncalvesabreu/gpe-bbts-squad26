@@ -1,10 +1,12 @@
 package br.com.bbts.gpe.gpe_backend.service;
 
 import br.com.bbts.gpe.gpe_backend.domain.model.InstrumentoJuridico;
+import br.com.bbts.gpe.gpe_backend.domain.model.HistoricoParceiro;
 import br.com.bbts.gpe.gpe_backend.domain.model.Oportunidade;
 import br.com.bbts.gpe.gpe_backend.domain.model.Parceiro;
 import br.com.bbts.gpe.gpe_backend.domain.model.TipoInstrumento;
 import br.com.bbts.gpe.gpe_backend.domain.repository.InstrumentoRepository;
+import br.com.bbts.gpe.gpe_backend.domain.repository.HistoricoParceiroRepository;
 import br.com.bbts.gpe.gpe_backend.domain.repository.OportunidadeRepository;
 import br.com.bbts.gpe.gpe_backend.domain.model.ProrrogacaoInstrumento;
 import br.com.bbts.gpe.gpe_backend.domain.repository.ProrrogacaoInstrumentoRepository;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -31,6 +34,7 @@ class InstrumentoServiceTest {
     @Mock private InstrumentoRepository instrumentoRepository;
     @Mock private OportunidadeRepository oportunidadeRepository;
     @Mock private ProrrogacaoInstrumentoRepository prorrogacaoRepository;
+    @Mock private HistoricoParceiroRepository historicoParceiroRepository;
     @Mock private ParceiroService parceiroService;
     @InjectMocks private InstrumentoService instrumentoService;
 
@@ -56,11 +60,15 @@ class InstrumentoServiceTest {
         when(oportunidadeRepository.findById(opportunityId)).thenReturn(Optional.of(opportunity));
         when(instrumentoRepository.save(submitted)).thenReturn(submitted);
 
-        InstrumentoJuridico result = instrumentoService.salvar(submitted);
+        InstrumentoJuridico result = instrumentoService.salvar(submitted, "g123456");
 
         assertSame(partner, result.getParceiro());
         assertSame(opportunity, result.getOportunidade());
         verify(instrumentoRepository).save(submitted);
+        ArgumentCaptor<HistoricoParceiro> history = ArgumentCaptor.forClass(HistoricoParceiro.class);
+        verify(historicoParceiroRepository).save(history.capture());
+        assertEquals("ACORDO", history.getValue().getTipo());
+        assertEquals("g123456", history.getValue().getResponsavelMatricula());
     }
 
     @ParameterizedTest
@@ -79,7 +87,7 @@ class InstrumentoServiceTest {
         when(parceiroService.buscarPorId(partnerId)).thenReturn(partner);
         when(instrumentoRepository.save(submitted)).thenReturn(submitted);
 
-        InstrumentoJuridico result = instrumentoService.salvar(submitted);
+        InstrumentoJuridico result = instrumentoService.salvar(submitted, "g123456");
 
         assertEquals(tipo, result.getTipo());
         assertSame(partner, result.getParceiro());
@@ -104,7 +112,7 @@ class InstrumentoServiceTest {
         when(oportunidadeRepository.findById(opportunityId))
                 .thenReturn(Optional.of(Oportunidade.builder().parceiro(otherPartner).build()));
 
-        assertThrows(BusinessException.class, () -> instrumentoService.salvar(submitted));
+        assertThrows(BusinessException.class, () -> instrumentoService.salvar(submitted, "g123456"));
         verify(instrumentoRepository, never()).save(any());
     }
 
@@ -115,7 +123,7 @@ class InstrumentoServiceTest {
                 .dataFimVigencia(LocalDate.of(2026, 4, 30))
                 .build();
 
-        assertThrows(BusinessException.class, () -> instrumentoService.salvar(submitted));
+        assertThrows(BusinessException.class, () -> instrumentoService.salvar(submitted, "g123456"));
         verify(instrumentoRepository, never()).save(any());
     }
 

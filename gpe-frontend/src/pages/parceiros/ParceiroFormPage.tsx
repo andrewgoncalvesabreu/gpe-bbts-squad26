@@ -6,9 +6,8 @@ import { InputText } from 'primereact/inputtext'
 import { FormField } from '../../components/common/FormField'
 import { useToast } from '../../components/common/toastContext'
 import { PORTE_OPTIONS, STATUS_OPTIONS, TIPO_ORGANIZACAO_OPTIONS, UF_OPTIONS } from '../../constants/parceiro'
-import { historicoParceiroService } from '../../services/historicoParceiroService'
 import { parceiroService } from '../../services/parceiroService'
-import type { Parceiro, ParceiroPayload } from '../../types/parceiro'
+import type { Parceiro } from '../../types/parceiro'
 import { parseApiError } from '../../utils/apiError'
 import { maskCep, maskCnpj, maskTelefone } from '../../utils/format'
 import {
@@ -21,20 +20,6 @@ import { isValidCnpj, isValidEmail } from '../../utils/validators'
 import { AreaChips } from './components/AreaChips'
 
 type Errors = Partial<Record<keyof ParceiroFormValues, string>>
-
-const CAMPOS_LABEL: Partial<Record<keyof ParceiroPayload, string>> = {
-  razaoSocial: 'Razão Social',
-  nomeFantasia: 'Nome Fantasia',
-  cnpj: 'CNPJ',
-  tipoOrganizacao: 'Tipo de Organização',
-  segmentoAtuacao: 'Áreas de Atuação',
-  porte: 'Porte',
-  emailContato: 'E-mail',
-  telefone: 'Telefone',
-  enderecoCompleto: 'Endereço',
-  responsaveis: 'Responsáveis',
-  status: 'Status',
-}
 
 function validate(v: ParceiroFormValues): Errors {
   const e: Errors = {}
@@ -61,6 +46,7 @@ export default function ParceiroFormPage() {
   const [errors, setErrors] = useState<Errors>({})
   const [loading, setLoading] = useState(isEdit)
   const [saving, setSaving] = useState(false)
+  const [responsavelMatricula, setResponsavelMatricula] = useState('')
 
   useEffect(() => {
     if (!id) return
@@ -82,16 +68,6 @@ export default function ParceiroFormPage() {
     setErrors((prev) => ({ ...prev, [key]: undefined }))
   }
 
-  // RF003: grava no histórico (best-effort — falha aqui não desfaz o cadastro).
-  // Se o back-end passar a registrar isso sozinho, remova esta função.
-  const registrarHistorico = async (parceiroId: string, descricao: string) => {
-    try {
-      await historicoParceiroService.adicionar(parceiroId, { tipo: 'ALTERACAO_CADASTRAL', descricao })
-    } catch {
-      /* ignora */
-    }
-  }
-
   const onSubmit = async (ev: FormEvent) => {
     ev.preventDefault()
     const found = validate(values)
@@ -100,21 +76,20 @@ export default function ParceiroFormPage() {
       toast.error('Corrija os campos destacados.')
       return
     }
+    if (!responsavelMatricula.trim()) {
+      toast.error('Informe a matrícula do responsável pela operação.')
+      return
+    }
 
     const payload = formToPayload(values)
     setSaving(true)
     try {
       if (id && original) {
-        await parceiroService.atualizar(id, payload)
-        const alterados = (Object.keys(CAMPOS_LABEL) as (keyof ParceiroPayload)[])
-          .filter((k) => (payload[k] ?? '') !== ((original[k] as string | null | undefined) ?? ''))
-          .map((k) => CAMPOS_LABEL[k])
-        if (alterados.length > 0) await registrarHistorico(id, `Campos alterados: ${alterados.join(', ')}.`)
+        await parceiroService.atualizar(id, payload, responsavelMatricula.trim())
         toast.success('Parceiro atualizado com sucesso.')
         navigate(`/parceiros/${id}`)
       } else {
-        const criado = await parceiroService.criar(payload)
-        await registrarHistorico(criado.id, 'Cadastro inicial do parceiro.')
+        const criado = await parceiroService.criar(payload, responsavelMatricula.trim())
         toast.success('Parceiro cadastrado com sucesso.')
         navigate(`/parceiros/${criado.id}`)
       }
@@ -212,6 +187,18 @@ export default function ParceiroFormPage() {
         <h2 className="mb-4 text-lg font-semibold">Áreas de Atuação</h2>
         <AreaChips value={values.areas} onChange={(a) => set('areas', a)} />
         {errors.areas && <small className="mt-2 block text-red-600">{errors.areas}</small>}
+      </section>
+
+      <section className={section}>
+        <h2 className="mb-4 text-lg font-semibold">Responsável pela operação</h2>
+        <FormField label="Matrícula" required>
+          <InputText
+            value={responsavelMatricula}
+            maxLength={50}
+            onChange={(event) => setResponsavelMatricula(event.target.value)}
+            placeholder="Informe sua matrícula"
+          />
+        </FormField>
       </section>
 
       <div className="flex justify-end gap-3">

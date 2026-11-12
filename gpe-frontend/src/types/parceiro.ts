@@ -34,12 +34,14 @@ export interface HistoricoParceiro {
   id: string
   tipo: string
   descricao: string
+  responsavelMatricula: string
   dataEvento: string
 }
 
 export interface HistoricoPayload {
   tipo: string
   descricao: string
+  responsavelMatricula: string
 }
 
 // Formato de erro padronizado pelo GlobalExceptionHandler

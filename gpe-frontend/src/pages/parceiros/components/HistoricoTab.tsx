@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Button } from 'primereact/button'
 import { Dialog } from 'primereact/dialog'
 import { Dropdown } from 'primereact/dropdown'
+import { InputText } from 'primereact/inputtext'
 import { InputTextarea } from 'primereact/inputtextarea'
 import { useToast } from '../../../components/common/toastContext'
 import { TIPO_HISTORICO_OPTIONS, labelFrom } from '../../../constants/parceiro'
@@ -17,10 +18,10 @@ export function HistoricoTab({ parceiroId }: { parceiroId: string }) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [tipo, setTipo] = useState<string>('INTERACAO')
   const [descricao, setDescricao] = useState('')
+  const [responsavelMatricula, setResponsavelMatricula] = useState('')
   const [saving, setSaving] = useState(false)
 
   const carregar = useCallback(async () => {
-    setLoading(true)
     try {
       setItens(await historicoParceiroService.listar(parceiroId))
     } catch (err) {
@@ -35,13 +36,18 @@ export function HistoricoTab({ parceiroId }: { parceiroId: string }) {
   }, [carregar])
 
   const salvar = async () => {
-    if (!descricao.trim()) return
+    if (!descricao.trim() || !responsavelMatricula.trim()) return
     setSaving(true)
     try {
-      await historicoParceiroService.adicionar(parceiroId, { tipo, descricao: descricao.trim() })
+      await historicoParceiroService.adicionar(parceiroId, {
+        tipo,
+        descricao: descricao.trim(),
+        responsavelMatricula: responsavelMatricula.trim(),
+      })
       toast.success('Registro adicionado ao histórico.')
       setDialogOpen(false)
       setDescricao('')
+      setLoading(true)
       await carregar()
     } catch (err) {
       toast.error(parseApiError(err).message)
@@ -68,6 +74,7 @@ export function HistoricoTab({ parceiroId }: { parceiroId: string }) {
               <span className="absolute -left-[5px] mt-1.5 h-2.5 w-2.5 rounded-full bg-zinc-600" />
               <p className="text-xs text-zinc-400">
                 {formatDateTime(h.dataEvento)} · {labelFrom(TIPO_HISTORICO_OPTIONS, h.tipo)}
+                {' · '}Responsável: {h.responsavelMatricula}
               </p>
               <p className="text-sm text-zinc-900">{h.descricao}</p>
             </li>
@@ -83,11 +90,26 @@ export function HistoricoTab({ parceiroId }: { parceiroId: string }) {
         footer={
           <div className="flex justify-end gap-2">
             <Button type="button" label="Cancelar" outlined onClick={() => setDialogOpen(false)} />
-            <Button type="button" label="Salvar" loading={saving} disabled={!descricao.trim()} onClick={salvar} />
+            <Button
+              type="button"
+              label="Salvar"
+              loading={saving}
+              disabled={!descricao.trim() || !responsavelMatricula.trim()}
+              onClick={salvar}
+            />
           </div>
         }
       >
         <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="historico-responsavel" className="text-sm font-medium">Matrícula do responsável</label>
+            <InputText
+              id="historico-responsavel"
+              value={responsavelMatricula}
+              maxLength={50}
+              onChange={(e) => setResponsavelMatricula(e.target.value)}
+            />
+          </div>
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium">Tipo de evento</label>
             <Dropdown value={tipo} options={TIPO_HISTORICO_OPTIONS} onChange={(e) => setTipo(e.value)} />

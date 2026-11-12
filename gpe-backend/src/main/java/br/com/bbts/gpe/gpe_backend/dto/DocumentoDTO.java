@@ -13,8 +13,13 @@ public record DocumentoDTO(
         String oportunidadeTitulo,
         UUID instrumentoId,
         String instrumentoNome,
+        UUID parceriaId,
+        String parceriaNome,
         Integer versaoAtual,
         String nomeArquivoAtual,
         Long tamanhoArquivoAtual,
-        LocalDateTime dataAtualizacao) {
+        String statusAssinatura,
+        LocalDateTime dataCriacao,
+        LocalDateTime dataAtualizacao,
+        DocumentoVersaoDTO versao) {
 }

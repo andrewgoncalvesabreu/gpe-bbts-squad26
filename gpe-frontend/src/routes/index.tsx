@@ -9,6 +9,7 @@ import ParceiroFormPage from '../pages/parceiros/ParceiroFormPage'
 import ParceirosListPage from '../pages/parceiros/ParceirosListPage'
 import InstrumentosPage from '../pages/instrumentos/InstrumentosPage'
 import DocumentosPage from '../pages/documentos/DocumentosPage'
+import ProjetosPage from '../pages/projetos/ProjetosPage'
 
 export function AppRoutes() {
   return (
@@ -30,6 +31,7 @@ export function AppRoutes() {
 
         {/* Módulo de instrumentos jurídicos */}
         <Route path="instrumentos" element={<InstrumentosPage />} />
+        <Route path="projetos" element={<ProjetosPage />} />
 
         {/* Módulo de gestão documental */}
         <Route path="documentos" element={<DocumentosPage />} />

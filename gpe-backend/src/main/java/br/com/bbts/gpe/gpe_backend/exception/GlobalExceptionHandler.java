@@ -6,12 +6,50 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+        private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+        @ExceptionHandler(InvalidFileException.class)
+        public ResponseEntity<Map<String, Object>> handleInvalidFile(InvalidFileException exception) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", 400);
+                response.put("mensagem", exception.getMessage());
+                return ResponseEntity.badRequest().body(response);
+        }
+
+        @ExceptionHandler(MaxUploadSizeExceededException.class)
+        public ResponseEntity<Map<String, Object>> handleFileTooLarge(MaxUploadSizeExceededException exception) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", 400);
+                response.put("mensagem", "O arquivo excede o limite de 20 MB");
+                return ResponseEntity.badRequest().body(response);
+        }
+
+        @ExceptionHandler(SignatureIntegrationException.class)
+        public ResponseEntity<Map<String, Object>> handleSignatureIntegration(
+                        SignatureIntegrationException exception) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", 502);
+                response.put("mensagem", exception.getMessage());
+                return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(response);
+        }
+
+        @ExceptionHandler(DocumentStorageException.class)
+        public ResponseEntity<Map<String, Object>> handleDocumentStorage(DocumentStorageException exception) {
+                LOGGER.error("Falha no armazenamento de documentos", exception);
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", 500);
+                response.put("mensagem", "Não foi possível concluir a operação com o arquivo");
+                return ResponseEntity.internalServerError().body(response);
+        }
 
         @ExceptionHandler(ResourceNotFoundException.class)
         public ResponseEntity<Map<String, Object>> handleNotFound(
