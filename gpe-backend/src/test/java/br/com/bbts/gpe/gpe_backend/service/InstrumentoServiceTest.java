@@ -36,6 +36,7 @@ class InstrumentoServiceTest {
     @Mock private ProrrogacaoInstrumentoRepository prorrogacaoRepository;
     @Mock private HistoricoParceiroRepository historicoParceiroRepository;
     @Mock private ParceiroService parceiroService;
+    @Mock private AuditoriaService auditoriaService;
     @InjectMocks private InstrumentoService instrumentoService;
 
     @Test

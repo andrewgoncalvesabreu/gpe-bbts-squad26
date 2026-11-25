@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,18 +30,21 @@ public class InstrumentoService {
     private final ProrrogacaoInstrumentoRepository prorrogacaoRepository;
     private final HistoricoParceiroRepository historicoParceiroRepository;
     private final ParceiroService parceiroService;
+    private final AuditoriaService auditoriaService;
 
     public InstrumentoService(
             InstrumentoRepository instrumentoRepository,
             OportunidadeRepository oportunidadeRepository,
             ProrrogacaoInstrumentoRepository prorrogacaoRepository,
             HistoricoParceiroRepository historicoParceiroRepository,
-            ParceiroService parceiroService) {
+            ParceiroService parceiroService,
+            AuditoriaService auditoriaService) {
         this.instrumentoRepository = instrumentoRepository;
         this.oportunidadeRepository = oportunidadeRepository;
         this.prorrogacaoRepository = prorrogacaoRepository;
         this.historicoParceiroRepository = historicoParceiroRepository;
         this.parceiroService = parceiroService;
+        this.auditoriaService = auditoriaService;
     }
 
     @Transactional(readOnly = true)
@@ -88,6 +93,7 @@ public class InstrumentoService {
                 .responsavelMatricula(responsavelMatricula.trim())
                 .dataEvento(LocalDateTime.now())
                 .build());
+        auditoriaService.registrar("CREATE", "InstrumentoJuridico", salvo.getId(), null, snapshot(salvo), null);
         return salvo;
     }
 
@@ -102,6 +108,7 @@ public class InstrumentoService {
             UUID instrumentoId,
             ProrrogacaoInstrumentoRequestDTO request) {
         InstrumentoJuridico instrumento = buscarPorId(instrumentoId);
+        Map<String, Object> conteudoAnterior = snapshot(instrumento);
         LocalDate novaDataFim = request.getNovaDataFim();
         if (instrumento.getDataFimVigencia() == null) {
             throw new BusinessException("O instrumento não possui data de término vigente");
@@ -119,7 +126,10 @@ public class InstrumentoService {
                 .build();
         instrumento.setDataFimVigencia(novaDataFim);
         instrumentoRepository.save(instrumento);
-        return prorrogacaoRepository.save(prorrogacao);
+        ProrrogacaoInstrumento salva = prorrogacaoRepository.save(prorrogacao);
+        auditoriaService.registrar("EXTEND_VALIDITY", "InstrumentoJuridico", instrumento.getId(),
+                conteudoAnterior, snapshot(instrumento, salva), null);
+        return salva;
     }
 
     private InstrumentoJuridico buscarPorId(UUID id) {
@@ -134,5 +144,25 @@ public class InstrumentoService {
         if (dataFim.isBefore(dataInicio)) {
             throw new BusinessException("Data de término não pode ser anterior à data de início");
         }
+    }
+
+    private Map<String, Object> snapshot(InstrumentoJuridico instrumento) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("id", instrumento.getId());
+        snapshot.put("nome", instrumento.getNome());
+        snapshot.put("tipo", instrumento.getTipo());
+        snapshot.put("numeroInstrumento", instrumento.getNumeroInstrumento());
+        snapshot.put("dataInicioVigencia", instrumento.getDataInicioVigencia());
+        snapshot.put("dataFimVigencia", instrumento.getDataFimVigencia());
+        snapshot.put("parceiroId", instrumento.getParceiro() == null ? null : instrumento.getParceiro().getId());
+        return snapshot;
+    }
+
+    private Map<String, Object> snapshot(InstrumentoJuridico instrumento, ProrrogacaoInstrumento prorrogacao) {
+        Map<String, Object> snapshot = snapshot(instrumento);
+        snapshot.put("dataFimAnterior", prorrogacao.getDataFimAnterior());
+        snapshot.put("dataFimNova", prorrogacao.getDataFimNova());
+        snapshot.put("justificativa", prorrogacao.getJustificativa());
+        return snapshot;
     }
 }
