@@ -5,6 +5,12 @@ spring:
   application:
     name: gpe-backend
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8080/realms/gpe}
+
   datasource:
     url: jdbc:postgresql://localhost:5432/gpe_db
     username: gpe_user

@@ -68,7 +68,7 @@ O projeto utiliza uma arquitetura em **Monorepo**, mantendo Back-end, Front-end 
 | 🚀 Framework              | Spring Boot 4.1.1          |
 | 🗄️ Banco de Dados        | PostgreSQL 16              |
 | 🔄 Migrações              | Flyway                     |
-| 🔐 Segurança              | Spring Security (rotas abertas atualmente); Keycloak no Compose, ainda não integrado |
+| 🔐 Segurança              | Spring Security + OAuth2 Resource Server + Keycloak (JWT/RBAC) |
 | 🌐 Front-end              | React + TypeScript         |
 | ⚡ Build Front-end         | Vite                       |
 | 🎨 UI                     | PrimeReact + Tailwind CSS  |
@@ -81,7 +81,8 @@ O projeto utiliza uma arquitetura em **Monorepo**, mantendo Back-end, Front-end 
 O Back-end foi desenvolvido utilizando **Java 21** e **Spring Boot 4.1.1**, contando com:
 
 * Spring Data JPA
-* Spring Security (a API atualmente permite acesso a todas as rotas; autenticação/autorização ainda não configuradas)
+* Spring Security com validação de tokens JWT emitidos pelo Keycloak
+* Perfis RBAC de desenvolvimento: `ADMIN`, `GESTOR_PARCEIRAS`, `ANALISTA`, `APROVADOR`, `AUDITOR` e `CONSULTA`
 * Bean Validation
 * Flyway
 * Maven
@@ -107,6 +108,16 @@ As alterações na estrutura do banco são controladas pelo **Flyway**, permitin
 ### Infraestrutura
 
 O ambiente local utiliza **Docker e Docker Compose** para facilitar a configuração e execução dos serviços necessários ao projeto.
+
+O Keycloak importa o realm de desenvolvimento localizado em `infra/keycloak/gpe-realm.json`. As credenciais abaixo são exclusivamente locais:
+
+| Usuário | Senha | Perfis principais |
+| --- | --- | --- |
+| `admin` | `admin` | ADMIN, GESTOR_PARCEIRAS, APROVADOR, AUDITOR |
+| `analista` | `analista` | ANALISTA |
+| `auditor` | `auditor` | AUDITOR, CONSULTA |
+
+Não reutilize essas credenciais ou o realm de desenvolvimento em ambientes compartilhados ou de produção.
 
 ---
 
@@ -191,17 +202,17 @@ cd gpe-bbts-squad26
 
 ---
 
-## 2. Subir o Banco de Dados
+## 2. Subir Banco de Dados e Keycloak
 
 Certifique-se de que o **Docker Desktop** está aberto.
 
 Na raiz do projeto, execute:
 
 ```bash
-docker-compose up -d postgres-gpe
+docker compose up -d postgres-gpe keycloak-gpe
 ```
 
-Esse comando irá iniciar o container do **PostgreSQL 16**.
+Esse comando irá iniciar os containers do **PostgreSQL 16** e do **Keycloak**. O realm `gpe` será importado automaticamente na primeira inicialização.
 
 ### Verificar o container
 
@@ -211,7 +222,7 @@ Para verificar se o banco está executando:
 docker ps
 ```
 
-O container `postgres-gpe` deverá aparecer com status semelhante a:
+Os containers `postgres-gpe` e `keycloak-gpe` deverão aparecer com status semelhante a:
 
 ```text
 Up

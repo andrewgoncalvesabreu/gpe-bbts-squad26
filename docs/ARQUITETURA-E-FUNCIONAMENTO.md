@@ -48,11 +48,11 @@ O prefixo padrão da API é `/api/v1`. Em desenvolvimento, o servidor Vite encam
 - **Maven** resolve dependências, compila e executa os testes.
 - **Flyway** aplica migrações SQL versionadas antes de a aplicação usar o schema.
 - **PostgreSQL 16** guarda parceiros, oportunidades, instrumentos, históricos, documentos e projetos.
-- **Spring Security** está incluído, mas a configuração atual permite acesso a todas as rotas e desabilita CSRF. Portanto, ainda não existe autenticação nem autorização efetiva na API.
+- **Spring Security OAuth2 Resource Server** valida tokens JWT emitidos pelo Keycloak; as roles do `realm_access` são convertidas para authorities `ROLE_*`. A autorização por operação será refinada com `@PreAuthorize` conforme os módulos receberem seus perfis específicos.
 
 ### Infraestrutura e armazenamento
 
-- **Docker Compose** sobe PostgreSQL e Keycloak para desenvolvimento local. O Keycloak está em `start-dev`; sua presença no Compose, por si só, não integra autenticação com o backend.
+- **Docker Compose** sobe PostgreSQL e Keycloak para desenvolvimento local. O Keycloak está em `start-dev --import-realm` e importa `infra/keycloak/gpe-realm.json`; o backend usa o issuer `http://localhost:8080/realms/gpe` para validar os JWTs.
 - Os metadados, relações e históricos dos documentos ficam no PostgreSQL. Os bytes dos arquivos ficam em um diretório de filesystem definido por `DOCUMENT_STORAGE_PATH`, fora dos recursos estáticos públicos da aplicação.
 - O filesystem de documentos precisa ser persistente e entrar no plano de backup junto com o banco. O volume `pgdata` do Compose preserva somente os dados do PostgreSQL, não os arquivos enviados.
 
@@ -201,8 +201,8 @@ npm run lint
 
 ## 8. Segurança, operação e limites atuais
 
-1. **Autenticação e autorização:** apesar das dependências de segurança e do serviço Keycloak no Compose, a configuração da API usa `permitAll` e desativa CSRF. As rotas não estão protegidas por login ou papéis.
-2. **Matrícula declarada:** campos e cabeçalhos de matrícula registram o valor enviado, sem confirmar identidade. Não usar isso como trilha auditável confiável ou controle de aprovadores.
+1. **Autenticação e autorização:** as rotas da API exigem um JWT válido do realm `gpe`. O mapeamento inicial de roles está disponível, mas a autorização por operação e o vínculo da matrícula com o usuário autenticado ainda precisam ser refinados.
+2. **Matrícula declarada:** os campos e cabeçalhos de matrícula existentes ainda registram o valor enviado. Não usar isso como trilha auditável confiável até a migração para o usuário autenticado e a implementação da auditoria transversal.
 3. **Assinatura:** o provedor é mock e não tem validade jurídica. Para produção, implementar e configurar um provedor real, validar callbacks/retornos e proteger segredos e protocolos.
 4. **Arquivos:** o backend restringe formato, tamanho e algumas assinaturas de conteúdo, mas não executa antivírus. Em produção, usar armazenamento gerenciado e análise de arquivos adequada; manter backup consistente dos bytes e metadados.
 5. **Alertas:** o frontend consulta os próximos 30 dias e o agendador escreve no log. Não há envio de e-mail, push ou integração com sistema de notificação.
