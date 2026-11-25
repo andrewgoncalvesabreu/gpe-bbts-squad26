@@ -22,6 +22,7 @@ class ParceiroServiceTest {
 
     @Mock private ParceiroRepository parceiroRepository;
     @Mock private HistoricoParceiroRepository historicoRepository;
+    @Mock private AuditoriaService auditoriaService;
     @InjectMocks private ParceiroService parceiroService;
 
     @Test

@@ -1,6 +1,8 @@
 package br.com.bbts.gpe.gpe_backend.service;
 
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.time.LocalDateTime;
 
@@ -19,12 +21,15 @@ public class ParceiroService {
 
     private final ParceiroRepository parceiroRepository;
     private final HistoricoParceiroRepository historicoRepository;
+    private final AuditoriaService auditoriaService;
 
     public ParceiroService(
             ParceiroRepository parceiroRepository,
-            HistoricoParceiroRepository historicoRepository) {
+            HistoricoParceiroRepository historicoRepository,
+            AuditoriaService auditoriaService) {
         this.parceiroRepository = parceiroRepository;
         this.historicoRepository = historicoRepository;
+        this.auditoriaService = auditoriaService;
     }
 
     public List<Parceiro> listarTodos() {
@@ -54,6 +59,7 @@ public class ParceiroService {
 
         Parceiro salvo = parceiroRepository.save(parceiro);
         registrarHistorico(salvo, "ALTERACAO_CADASTRAL", "Cadastro inicial do parceiro.", responsavelMatricula);
+        auditoriaService.registrar("CREATE", "Parceiro", salvo.getId(), null, snapshot(salvo), null);
         return salvo;
     }
 
@@ -62,6 +68,7 @@ public class ParceiroService {
         validarResponsavel(responsavelMatricula);
 
         Parceiro parceiro = buscarPorId(id);
+        Map<String, Object> conteudoAnterior = snapshot(parceiro);
 
         if (parceiroRepository.existsByCnpjAndIdNot(dados.getCnpj(), id)) {
     throw new BusinessException("Já existe um parceiro cadastrado com este CNPJ");
@@ -102,6 +109,7 @@ public class ParceiroService {
             registrarHistorico(salvo, "ALTERACAO_CADASTRAL",
                     "Campos alterados: " + String.join(", ", camposAlterados) + ".",
                     responsavelMatricula);
+            auditoriaService.registrar("UPDATE", "Parceiro", salvo.getId(), conteudoAnterior, snapshot(salvo), null);
         }
         return salvo;
     }
@@ -132,9 +140,28 @@ public class ParceiroService {
     public void excluir(UUID id, String responsavelMatricula) {
         validarResponsavel(responsavelMatricula);
         Parceiro parceiro = buscarPorId(id);
+        Map<String, Object> conteudoAnterior = snapshot(parceiro);
         parceiro.setStatus("INATIVO");
         parceiroRepository.save(parceiro);
         registrarHistorico(parceiro, "ALTERACAO_CADASTRAL",
                 "Status do parceiro alterado para INATIVO.", responsavelMatricula);
+        auditoriaService.registrar("DELETE", "Parceiro", parceiro.getId(), conteudoAnterior, snapshot(parceiro), null);
+    }
+
+    private Map<String, Object> snapshot(Parceiro parceiro) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("id", parceiro.getId());
+        snapshot.put("razaoSocial", parceiro.getRazaoSocial());
+        snapshot.put("nomeFantasia", parceiro.getNomeFantasia());
+        snapshot.put("cnpj", parceiro.getCnpj());
+        snapshot.put("tipoOrganizacao", parceiro.getTipoOrganizacao());
+        snapshot.put("segmentoAtuacao", parceiro.getSegmentoAtuacao());
+        snapshot.put("porte", parceiro.getPorte());
+        snapshot.put("emailContato", parceiro.getEmailContato());
+        snapshot.put("telefone", parceiro.getTelefone());
+        snapshot.put("enderecoCompleto", parceiro.getEnderecoCompleto());
+        snapshot.put("responsaveis", parceiro.getResponsaveis());
+        snapshot.put("status", parceiro.getStatus());
+        return snapshot;
     }
 }
