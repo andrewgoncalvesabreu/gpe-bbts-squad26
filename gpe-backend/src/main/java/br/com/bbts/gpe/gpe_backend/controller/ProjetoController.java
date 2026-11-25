@@ -6,6 +6,7 @@ import br.com.bbts.gpe.gpe_backend.service.ProjetoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,11 +32,13 @@ public class ProjetoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<ProjetoDTO> criar(@Valid @RequestBody ProjetoRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(projetoService.criar(request));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<ProjetoDTO> atualizar(
             @PathVariable UUID id,
             @Valid @RequestBody ProjetoRequestDTO request) {
@@ -43,6 +46,7 @@ public class ProjetoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS')")
     public ResponseEntity<Void> excluir(@PathVariable UUID id) {
         projetoService.excluir(id);
         return ResponseEntity.noContent().build();

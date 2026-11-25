@@ -6,6 +6,7 @@ import br.com.bbts.gpe.gpe_backend.service.ParceriaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class ParceriaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<ParceriaDTO> criar(@Valid @RequestBody ParceriaRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(parceriaService.criar(request));
     }

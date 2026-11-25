@@ -8,6 +8,7 @@ import br.com.bbts.gpe.gpe_backend.service.OportunidadeService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class OportunidadeController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<Oportunidade> criar(@Valid @RequestBody Oportunidade oportunidade) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -42,6 +44,7 @@ public class OportunidadeController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<Oportunidade> atualizar(
             @PathVariable UUID id,
             @Valid @RequestBody Oportunidade oportunidade) {
@@ -49,6 +52,7 @@ public class OportunidadeController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS')")
     public ResponseEntity<Void> excluir(@PathVariable UUID id) {
         oportunidadeService.excluir(id);
         return ResponseEntity.noContent().build();
@@ -56,6 +60,7 @@ public class OportunidadeController {
 
     // --- RF005: Avaliação ---
     @PostMapping("/{id}/avaliacoes")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<AvaliacaoOportunidade> avaliar(
             @PathVariable UUID id,
             @Valid @RequestBody AvaliacaoRequestDTO dto) {
@@ -70,6 +75,7 @@ public class OportunidadeController {
     }
 
     @PostMapping("/{id}/enviar-aprovacao")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<Oportunidade> enviarParaAprovacao(
             @PathVariable UUID id,
             @Valid @RequestBody WorkflowDecisionDTO dto) {
@@ -77,6 +83,7 @@ public class OportunidadeController {
     }
 
     @PostMapping("/{id}/aprovar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'APROVADOR')")
     public ResponseEntity<Oportunidade> aprovar(
             @PathVariable UUID id,
             @Valid @RequestBody WorkflowDecisionDTO dto) {
@@ -84,6 +91,7 @@ public class OportunidadeController {
     }
 
     @PostMapping("/{id}/reprovar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'APROVADOR')")
     public ResponseEntity<Oportunidade> reprovar(
             @PathVariable UUID id,
             @Valid @RequestBody WorkflowDecisionDTO dto) {

@@ -6,6 +6,7 @@ import br.com.bbts.gpe.gpe_backend.service.PlanoTrabalhoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -25,6 +26,7 @@ public class PlanoTrabalhoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<PlanoTrabalhoDTO> criar(
             @PathVariable UUID projetoId,
             @Valid @RequestBody PlanoTrabalhoRequestDTO request) {
@@ -33,6 +35,7 @@ public class PlanoTrabalhoController {
     }
 
     @PutMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<PlanoTrabalhoDTO> atualizar(
             @PathVariable UUID projetoId,
             @Valid @RequestBody PlanoTrabalhoRequestDTO request) {
@@ -40,6 +43,7 @@ public class PlanoTrabalhoController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS')")
     public ResponseEntity<Void> excluir(@PathVariable UUID projetoId) {
         planoTrabalhoService.excluir(projetoId);
         return ResponseEntity.noContent().build();

@@ -11,6 +11,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +38,7 @@ public class DocumentoController {
     }
 
     @PostMapping(value = "/documentos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<DocumentoDTO> criar(
             @RequestParam("nome") String nome,
             @RequestParam(value = "descricao", required = false) String descricao,
@@ -57,6 +59,7 @@ public class DocumentoController {
     }
 
     @PostMapping(value = "/parceiros/{parceiroId}/documentos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<DocumentoDTO> criarParaParceria(
             @PathVariable UUID parceiroId,
             @RequestParam("parceriaId") UUID parceriaId,
@@ -80,6 +83,7 @@ public class DocumentoController {
     }
 
     @PostMapping(value = "/documentos/{id}/versoes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<DocumentoVersaoDTO> adicionarVersao(
             @PathVariable UUID id,
             @RequestParam("arquivo") MultipartFile arquivo,
@@ -99,6 +103,7 @@ public class DocumentoController {
     }
 
     @PostMapping("/documentos/{id}/assinaturas")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS')")
     public ResponseEntity<AssinaturaDocumentoDTO> enviarParaAssinatura(
             @PathVariable UUID id,
             @Valid @RequestBody AssinaturaRequestDTO request) {
