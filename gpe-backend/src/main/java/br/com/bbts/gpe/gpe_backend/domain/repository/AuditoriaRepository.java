@@ -13,11 +13,11 @@ public interface AuditoriaRepository extends JpaRepository<Auditoria, UUID> {
 
     @Query("""
         select a from Auditoria a
-        where (:usuario is null or lower(a.usuario) like lower(concat('%', :usuario, '%')))
-          and (:operacao is null or a.operacao = :operacao)
-          and (:entidade is null or a.entidade = :entidade)
-          and (:inicio is null or a.dataHora >= :inicio)
-          and (:fim is null or a.dataHora <= :fim)
+        where (coalesce(:usuario, '') = '' or lower(a.usuario) like lower(concat('%', :usuario, '%')))
+          and (coalesce(:operacao, a.operacao) = a.operacao)
+          and (coalesce(:entidade, a.entidade) = a.entidade)
+          and (coalesce(:inicio, a.dataHora) <= a.dataHora)
+          and (coalesce(:fim, a.dataHora) >= a.dataHora)
         order by a.dataHora desc
         """)
     List<Auditoria> consultar(
