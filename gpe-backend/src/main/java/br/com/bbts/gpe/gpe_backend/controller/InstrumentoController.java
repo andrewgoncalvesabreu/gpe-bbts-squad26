@@ -9,6 +9,7 @@ import br.com.bbts.gpe.gpe_backend.service.InstrumentoAlertaService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class InstrumentoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<InstrumentoJuridico> criar(
             @Valid @RequestBody InstrumentoJuridico instrumento,
             @RequestHeader("X-Responsavel-Matricula") String responsavelMatricula) {
@@ -53,6 +55,7 @@ public class InstrumentoController {
     }
 
     @PostMapping("/{id}/prorrogacoes")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS')")
     public ResponseEntity<ProrrogacaoInstrumento> prorrogar(
             @PathVariable UUID id,
             @Valid @RequestBody ProrrogacaoInstrumentoRequestDTO request) {

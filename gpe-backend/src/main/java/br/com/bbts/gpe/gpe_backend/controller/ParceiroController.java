@@ -4,6 +4,7 @@ import br.com.bbts.gpe.gpe_backend.domain.model.Parceiro;
 import br.com.bbts.gpe.gpe_backend.service.ParceiroService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
@@ -31,6 +32,7 @@ public class ParceiroController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<Parceiro> criarParceiro(
         @Valid @RequestBody Parceiro parceiro,
         @RequestHeader("X-Responsavel-Matricula") String responsavelMatricula) {
@@ -43,6 +45,7 @@ public class ParceiroController {
 }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<Parceiro> atualizarParceiro(
         @PathVariable UUID id,
         @Valid @RequestBody Parceiro parceiro,
@@ -54,6 +57,7 @@ public class ParceiroController {
 }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS')")
     public ResponseEntity<Void> excluirParceiro(
             @PathVariable UUID id,
             @RequestHeader("X-Responsavel-Matricula") String responsavelMatricula) {

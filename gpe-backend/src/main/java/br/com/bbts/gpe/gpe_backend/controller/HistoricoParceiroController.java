@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class HistoricoParceiroController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'GESTOR_PARCEIRAS', 'ANALISTA')")
     public ResponseEntity<HistoricoParceiro> adicionarHistorico(
             @PathVariable UUID parceiroId,
             @Valid @RequestBody HistoricoParceiro historico) {

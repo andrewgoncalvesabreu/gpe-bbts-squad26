@@ -1,0 +1,60 @@
+{
+  "realm": "gpe",
+  "enabled": true,
+  "displayName": "GPE - Desenvolvimento",
+  "roles": {
+    "realm": [
+      { "name": "ADMIN", "description": "Administração do sistema" },
+      { "name": "GESTOR_PARCEIRAS", "description": "Gestão do ciclo de parcerias" },
+      { "name": "ANALISTA", "description": "Cadastro e acompanhamento operacional" },
+      { "name": "APROVADOR", "description": "Aprovação de oportunidades" },
+      { "name": "AUDITOR", "description": "Consulta de auditoria" },
+      { "name": "CONSULTA", "description": "Acesso somente leitura" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "gpe-frontend",
+      "name": "GPE Frontend",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:5173"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "firstName": "Administrador",
+      "lastName": "GPE",
+      "email": "admin@gpe.local",
+      "credentials": [{ "type": "password", "value": "admin", "temporary": false }],
+      "realmRoles": ["ADMIN", "GESTOR_PARCEIRAS", "APROVADOR", "AUDITOR"]
+    },
+    {
+      "username": "analista",
+      "enabled": true,
+      "firstName": "Analista",
+      "lastName": "GPE",
+      "email": "analista@gpe.local",
+      "credentials": [{ "type": "password", "value": "analista", "temporary": false }],
+      "realmRoles": ["ANALISTA"]
+    },
+    {
+      "username": "auditor",
+      "enabled": true,
+      "firstName": "Auditor",
+      "lastName": "GPE",
+      "email": "auditor@gpe.local",
+      "credentials": [{ "type": "password", "value": "auditor", "temporary": false }],
+      "realmRoles": ["AUDITOR", "CONSULTA"]
+    }
+  ]
+}
