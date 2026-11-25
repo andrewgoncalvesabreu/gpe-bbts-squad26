@@ -10,6 +10,7 @@ import ParceirosListPage from '../pages/parceiros/ParceirosListPage'
 import InstrumentosPage from '../pages/instrumentos/InstrumentosPage'
 import DocumentosPage from '../pages/documentos/DocumentosPage'
 import ProjetosPage from '../pages/projetos/ProjetosPage'
+import AuditoriaPage from '../pages/auditoria/AuditoriaPage'
 
 export function AppRoutes() {
   return (
@@ -35,6 +36,9 @@ export function AppRoutes() {
 
         {/* Módulo de gestão documental */}
         <Route path="documentos" element={<DocumentosPage />} />
+
+        {/* Trilha de auditoria — o backend restringe a ADMIN e AUDITOR */}
+        <Route path="auditorias" element={<AuditoriaPage />} />
 
         <Route path="*" element={<NotFoundPage />} />
       </Route>

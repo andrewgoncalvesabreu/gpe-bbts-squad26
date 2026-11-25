@@ -27,7 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -42,6 +44,7 @@ public class DocumentoService {
     private final ParceriaRepository parceriaRepository;
     private final ArquivoDocumentoStorageService storage;
     private final DocumentSignatureProvider signatureProvider;
+    private final AuditoriaService auditoriaService;
 
     public DocumentoService(
             DocumentoRepository documentoRepository,
@@ -53,7 +56,8 @@ public class DocumentoService {
             InstrumentoRepository instrumentoRepository,
             ParceriaRepository parceriaRepository,
             ArquivoDocumentoStorageService storage,
-            DocumentSignatureProvider signatureProvider) {
+            DocumentSignatureProvider signatureProvider,
+            AuditoriaService auditoriaService) {
         this.documentoRepository = documentoRepository;
         this.versaoRepository = versaoRepository;
         this.assinaturaRepository = assinaturaRepository;
@@ -64,6 +68,7 @@ public class DocumentoService {
         this.parceriaRepository = parceriaRepository;
         this.storage = storage;
         this.signatureProvider = signatureProvider;
+        this.auditoriaService = auditoriaService;
     }
 
     @Transactional(readOnly = true)
@@ -153,6 +158,7 @@ public class DocumentoService {
 
         documento = documentoRepository.save(documento);
         adicionarVersao(documento, arquivo, responsavelMatricula);
+        auditoriaService.registrar("CREATE", "Documento", documento.getId(), null, snapshot(documento), null);
         return toDto(documento);
     }
 
@@ -186,6 +192,8 @@ public class DocumentoService {
         registrarHistorico(documento, "DOCUMENTO",
                 "Nova versão " + versao.getNumeroVersao() + " do documento " + documento.getNome() + ".",
                 responsavelMatricula);
+        auditoriaService.registrar("ADD_VERSION", "Documento", documento.getId(),
+                snapshot(documento, versao.getNumeroVersao() - 1), snapshot(documento), null);
         return toVersaoDto(versao);
     }
 
@@ -194,15 +202,18 @@ public class DocumentoService {
         return toDto(buscarDocumento(documentoId));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public DownloadFile baixar(UUID documentoId, Integer numeroVersao) {
         buscarDocumento(documentoId);
         DocumentoVersao versao = buscarVersao(documentoId, numeroVersao);
-        return new DownloadFile(
+        DownloadFile arquivo = new DownloadFile(
                 storage.load(versao.getCaminhoArquivo()),
                 versao.getNomeArquivo(),
                 versao.getContentType(),
                 versao.getTamanhoBytes());
+        auditoriaService.registrar("DOWNLOAD", "Documento", documentoId, null,
+                snapshotDownload(versao), null);
+        return arquivo;
     }
 
     @Transactional(readOnly = true)
@@ -247,6 +258,8 @@ public class DocumentoService {
                     "Documento " + documento.getNome() + " encaminhado para assinatura. Status: "
                             + retorno.status() + ".",
                     responsavelMatricula);
+            auditoriaService.registrar("SUBMIT_FOR_SIGNATURE", "Documento", documento.getId(),
+                    null, snapshotSignature(documento, assinatura), null);
             return toAssinaturaDTO(assinatura);
         } catch (SignatureIntegrationException exception) {
             assinaturaRepository.save(AssinaturaDocumento.builder()
@@ -262,6 +275,8 @@ public class DocumentoService {
             registrarHistorico(documento, "ASSINATURA",
                     "Falha ao encaminhar o documento " + documento.getNome() + " para assinatura.",
                     responsavelMatricula);
+            auditoriaService.registrar("SIGNATURE_FAILURE", "Documento", documento.getId(),
+                    null, snapshot(documento), null);
             throw exception;
         }
     }
@@ -388,6 +403,43 @@ public class DocumentoService {
 
     private String blankToNull(String value) {
         return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private Map<String, Object> snapshot(Documento documento) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("id", documento.getId());
+        snapshot.put("nome", documento.getNome());
+        snapshot.put("versaoAtual", documento.getVersaoAtual());
+        snapshot.put("statusAssinatura", documento.getStatusAssinatura());
+        snapshot.put("parceiroId", documento.getParceiro() == null ? null : documento.getParceiro().getId());
+        snapshot.put("oportunidadeId", documento.getOportunidade() == null ? null : documento.getOportunidade().getId());
+        snapshot.put("instrumentoId", documento.getInstrumento() == null ? null : documento.getInstrumento().getId());
+        snapshot.put("parceriaId", documento.getParceria() == null ? null : documento.getParceria().getId());
+        return snapshot;
+    }
+
+    private Map<String, Object> snapshot(Documento documento, int versaoAnterior) {
+        Map<String, Object> snapshot = snapshot(documento);
+        snapshot.put("versaoAnterior", versaoAnterior);
+        return snapshot;
+    }
+
+    private Map<String, Object> snapshotDownload(DocumentoVersao versao) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("versao", versao.getNumeroVersao());
+        snapshot.put("nomeArquivo", versao.getNomeArquivo());
+        snapshot.put("tamanhoBytes", versao.getTamanhoBytes());
+        snapshot.put("hashSha256", versao.getHashSha256());
+        return snapshot;
+    }
+
+    private Map<String, Object> snapshotSignature(Documento documento, AssinaturaDocumento assinatura) {
+        Map<String, Object> snapshot = snapshot(documento);
+        snapshot.put("provedor", assinatura.getProvedor());
+        snapshot.put("status", assinatura.getStatus());
+        snapshot.put("protocolo", assinatura.getProtocolo());
+        snapshot.put("versao", assinatura.getDocumentoVersao().getNumeroVersao());
+        return snapshot;
     }
 
     public record DownloadFile(Resource resource, String fileName, String contentType, Long size) {

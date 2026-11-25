@@ -17,6 +17,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Due Dil', icon: 'pi-shield', to: '/due-diligence', enabled: false },
   { label: 'Instrumentos', icon: 'pi-folder', to: '/instrumentos', enabled: true },
   { label: 'Docs', icon: 'pi-file-edit', to: '/documentos', enabled: true },
+  { label: 'Auditoria', icon: 'pi-history', to: '/auditorias', enabled: true },
   { label: 'Exec', icon: 'pi-chart-line', to: '/execucao', enabled: false },
   { label: 'Financ', icon: 'pi-wallet', to: '/financeiro', enabled: false },
   { label: 'Gov', icon: 'pi-heart', to: '/governanca', enabled: false },

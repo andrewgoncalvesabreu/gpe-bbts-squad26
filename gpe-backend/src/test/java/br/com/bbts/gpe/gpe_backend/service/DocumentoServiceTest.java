@@ -40,6 +40,7 @@ class DocumentoServiceTest {
     @Mock private InstrumentoRepository instrumentoRepository;
     @Mock private ArquivoDocumentoStorageService storage;
     @Mock private DocumentSignatureProvider signatureProvider;
+    @Mock private AuditoriaService auditoriaService;
     @InjectMocks private DocumentoService documentoService;
 
     @Test
