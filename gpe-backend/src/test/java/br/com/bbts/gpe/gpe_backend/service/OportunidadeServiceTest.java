@@ -29,6 +29,7 @@ class OportunidadeServiceTest {
     @Mock private AvaliacaoOportunidadeRepository avaliacaoRepository;
     @Mock private HistoricoParceiroRepository historicoRepository;
     @Mock private ParceiroService parceiroService;
+    @Mock private AuditoriaService auditoriaService;
     @InjectMocks private OportunidadeService oportunidadeService;
 
     private UUID oportunidadeId;

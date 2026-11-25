@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.time.LocalDateTime;
 
@@ -30,16 +32,19 @@ public class OportunidadeService {
     private final AvaliacaoOportunidadeRepository avaliacaoOportunidadeRepository;
     private final HistoricoParceiroRepository historicoParceiroRepository;
     private final ParceiroService parceiroService;
+    private final AuditoriaService auditoriaService;
 
     public OportunidadeService(
             OportunidadeRepository oportunidadeRepository,
             AvaliacaoOportunidadeRepository avaliacaoOportunidadeRepository,
             HistoricoParceiroRepository historicoParceiroRepository,
-            ParceiroService parceiroService) {
+            ParceiroService parceiroService,
+            AuditoriaService auditoriaService) {
         this.oportunidadeRepository = oportunidadeRepository;
         this.avaliacaoOportunidadeRepository = avaliacaoOportunidadeRepository;
         this.historicoParceiroRepository = historicoParceiroRepository;
         this.parceiroService = parceiroService;
+        this.auditoriaService = auditoriaService;
     }
 
     @Transactional(readOnly = true)
@@ -78,12 +83,14 @@ public class OportunidadeService {
         registrarHistorico(parceiro, "OPORTUNIDADE",
                 "Oportunidade cadastrada: " + salva.getTitulo() + ".",
                 salva.getResponsavelMatricula());
+        auditoriaService.registrar("CREATE", "Oportunidade", salva.getId(), null, snapshot(salva), null);
         return salva;
     }
 
     @Transactional
     public Oportunidade atualizar(UUID id, Oportunidade dados) {
         Oportunidade oportunidade = buscarPorId(id);
+        Map<String, Object> conteudoAnterior = snapshot(oportunidade);
 
         oportunidade.setTitulo(dados.getTitulo());
         oportunidade.setOrigem(dados.getOrigem());
@@ -101,20 +108,24 @@ public class OportunidadeService {
         registrarHistorico(salva.getParceiro(), "OPORTUNIDADE",
                 "Oportunidade atualizada: " + salva.getTitulo() + ".",
                 salva.getResponsavelMatricula());
+        auditoriaService.registrar("UPDATE", "Oportunidade", salva.getId(), conteudoAnterior, snapshot(salva), null);
         return salva;
     }
 
     @Transactional
     public void excluir(UUID id) {
         Oportunidade oportunidade = buscarPorId(id);
+        Map<String, Object> conteudoAnterior = snapshot(oportunidade);
         oportunidade.setStatusWorkflow(STATUS_CANCELADA);
         oportunidadeRepository.save(oportunidade);
+        auditoriaService.registrar("DELETE", "Oportunidade", oportunidade.getId(), conteudoAnterior, snapshot(oportunidade), null);
     }
 
     // --- RF005: Avaliação de Oportunidades ---
     @Transactional
     public AvaliacaoOportunidade avaliar(UUID oportunidadeId, AvaliacaoRequestDTO dto) {
         Oportunidade oportunidade = buscarPorId(oportunidadeId);
+        Map<String, Object> conteudoAnterior = snapshot(oportunidade);
         if (!STATUS_INICIAL.equalsIgnoreCase(oportunidade.getStatusWorkflow())
                 && !STATUS_EM_AVALIACAO.equalsIgnoreCase(oportunidade.getStatusWorkflow())) {
             throw new BusinessException("A oportunidade não está disponível para avaliação");
@@ -141,6 +152,8 @@ public class OportunidadeService {
         registrarHistorico(oportunidade.getParceiro(), "AVALIACAO_OPORTUNIDADE",
                 "Avaliação registrada para a oportunidade: " + oportunidade.getTitulo() + ".",
                 dto.getAvaliadorMatricula());
+        auditoriaService.registrar("EVALUATE", "Oportunidade", oportunidade.getId(), conteudoAnterior,
+                snapshot(avaliacao), null);
         return salva;
     }
 
@@ -161,6 +174,8 @@ public class OportunidadeService {
         Oportunidade salva = oportunidadeRepository.save(oportunidade);
         registrarHistorico(oportunidade.getParceiro(), "FLUXO_APROVACAO",
                 "Oportunidade enviada para aprovação.", dto.getResponsavelMatricula());
+        auditoriaService.registrar("SUBMIT_FOR_APPROVAL", "Oportunidade", salva.getId(),
+                Map.of("statusWorkflow", STATUS_EM_AVALIACAO), snapshot(salva), null);
         return salva;
     }
 
@@ -186,6 +201,13 @@ public class OportunidadeService {
         oportunidade.setStatusWorkflow(status);
         Oportunidade salva = oportunidadeRepository.save(oportunidade);
         registrarHistorico(oportunidade.getParceiro(), "FLUXO_APROVACAO", descricao, dto.getResponsavelMatricula());
+        auditoriaService.registrar(
+                "APROVADA".equals(status) ? "APPROVE" : "REJECT",
+                "Oportunidade",
+                salva.getId(),
+                Map.of("statusWorkflow", STATUS_EM_APROVACAO),
+                snapshot(salva),
+                null);
         return salva;
     }
 
@@ -197,5 +219,35 @@ public class OportunidadeService {
                 .responsavelMatricula(responsavelMatricula.trim())
                 .dataEvento(LocalDateTime.now())
                 .build());
+    }
+
+    private Map<String, Object> snapshot(Oportunidade oportunidade) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("id", oportunidade.getId());
+        snapshot.put("titulo", oportunidade.getTitulo());
+        snapshot.put("parceiroId", oportunidade.getParceiro() == null ? null : oportunidade.getParceiro().getId());
+        snapshot.put("origem", oportunidade.getOrigem());
+        snapshot.put("descricao", oportunidade.getDescricao());
+        snapshot.put("objetivos", oportunidade.getObjetivos());
+        snapshot.put("justificativa", oportunidade.getJustificativa());
+        snapshot.put("beneficiosEsperados", oportunidade.getBeneficiosEsperados());
+        snapshot.put("estimativaFinanceira", oportunidade.getEstimativaFinanceira());
+        snapshot.put("statusWorkflow", oportunidade.getStatusWorkflow());
+        snapshot.put("areaDemandante", oportunidade.getAreaDemandante());
+        snapshot.put("responsavelMatricula", oportunidade.getResponsavelMatricula());
+        return snapshot;
+    }
+
+    private Map<String, Object> snapshot(AvaliacaoOportunidade avaliacao) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        snapshot.put("id", avaliacao.getId());
+        snapshot.put("alinhamentoEstrategico", avaliacao.getAlinhamentoEstrategico());
+        snapshot.put("potencialInovacao", avaliacao.getPotencialInovacao());
+        snapshot.put("retornoFinanceiro", avaliacao.getRetornoFinanceiro());
+        snapshot.put("impactoInstitucional", avaliacao.getImpactoInstitucional());
+        snapshot.put("viabilidadeTecnica", avaliacao.getViabilidadeTecnica());
+        snapshot.put("parecerTecnico", avaliacao.getParecerTecnico());
+        snapshot.put("avaliadorMatricula", avaliacao.getAvaliadorMatricula());
+        return snapshot;
     }
 }
